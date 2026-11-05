@@ -173,8 +173,9 @@ def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DUR
     except (WebSocketException, OSError, TimeoutError) as exc:
         if jumlah == 0:
             raise AisError(
-                f"Koneksi ke aisstream.io ditutup ({type(exc).__name__}: {exc}). Penyebab umum menurut dokumentasi: "
-                "kunci API tidak valid, sudah ada 3 koneksi aktif untuk akun yang sama, atau langganan ditolak."
+                f"Koneksi ke aisstream.io ditutup ({type(exc).__name__}: {exc}). Server memutus koneksi tanpa pesan "
+                "persis seperti ini bila kunci API salah; periksa kembali kunci di Secrets (bagian [aisstream], "
+                "api_key) atau buat kunci baru di aisstream.io. Penyebab lain: sudah ada 3 koneksi aktif untuk akun yang sama."
             ) from exc
     if jumlah == 0 and not posisi:
         # Normal bila tidak ada kapal target yang memancar selama rentang ini; biarkan pemanggil menampilkan 0.
