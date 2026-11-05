@@ -76,5 +76,6 @@ Angka hasil pemangkasan pada snapshot saat ini ada di `META.json`.
 ## aisstream.io (opsional, tidak disimpan di repo)
 
 - **URL:** wss://stream.aisstream.io/v0/stream, kunci API gratis dengan akun GitHub.
-- **Dipakai untuk:** tab Live AIS, mencocokkan MMSI kapal tersanksi dengan laporan posisi (PositionReport,
-  StandardClassBPositionReport) selama beberapa puluh detik. Tidak ada data AIS yang disimpan di repo.
+- **Dipakai untuk:** tab Live AIS, berlangganan sampai 200 MMSI kapal tersanksi per sesi (`FiltersShipMMSI`) dan
+  mencatat laporan posisi (PositionReport, StandardClassBPositionReport) selama beberapa puluh detik. Tidak ada data AIS
+  yang disimpan di repo.

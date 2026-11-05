@@ -5,12 +5,12 @@ AIS (Automatic Identification System) adalah sinyal radio yang wajib dipancarkan
 identitas (MMSI), posisi, kecepatan, haluan. aisstream.io meneruskan sinyal yang ditangkap ribuan
 penerima sukarelawan lewat WebSocket, gratis dengan kunci API.
 
-Ide tab "Live AIS": ambil semua MMSI kapal yang ada di daftar sanksi (dari data/simpul.csv.gz),
-dengarkan siaran dunia selama beberapa puluh detik, dan tampilkan kapal tersanksi yang saat itu
-sedang memancarkan posisinya. aisstream membatasi filter MMSI per langganan, sedangkan kapal
-tersanksi ada ratusan, sehingga yang dilakukan: berlangganan seluruh dunia lalu menyaring di sisi
-klien. Kapal yang mematikan AIS (praktik umum "armada bayangan") tentu tidak akan muncul; itu
-sendiri sebuah temuan.
+Ide tab "Live AIS": ambil MMSI kapal yang ada di daftar sanksi (dari data/simpul.csv.gz), minta
+server hanya mengirim pesan kapal-kapal itu (``FiltersShipMMSI``, maksimum 200 MMSI per langganan
+menurut dokumentasi aisstream), dengarkan beberapa puluh detik, dan tampilkan yang saat itu sedang
+memancarkan posisinya. Berlangganan seluruh dunia tanpa filter MMSI tidak dipakai: volumenya ribuan
+pesan per detik dan server memutus klien yang tidak sanggup mengikuti. Kapal yang mematikan AIS
+(praktik umum "armada bayangan") tentu tidak akan muncul; itu sendiri sebuah temuan.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ URL_STREAM = "wss://stream.aisstream.io/v0/stream"
 SELURUH_DUNIA = [[[-90.0, -180.0], [90.0, 180.0]]]
 TIPE_PESAN = ["PositionReport", "StandardClassBPositionReport"]
 DURASI_DEFAULT = 30
+MAKS_MMSI = 200  # batas FiltersShipMMSI per langganan (dokumentasi aisstream.io)
 KOLOM = ["mmsi", "nama_ais", "lat", "lon", "sog_knot", "cog", "status_nav", "waktu_pesan"]
 
 STATUS_NAV = {0: "berlayar dengan mesin", 1: "berlabuh jangkar", 2: "tidak terkendali", 3: "olah gerak terbatas",
@@ -107,9 +108,21 @@ def urai_posisi(pesan: dict) -> dict | None:
     }
 
 
-def dengarkan(api_key: str, mmsi_target: set[str], durasi: int = DURASI_DEFAULT,
+def pilih_mmsi(mmsi: list[str], maks: int = MAKS_MMSI) -> list[str]:
+    """MMSI valid (9 digit), unik, urutan dipertahankan, dipotong pada ``maks`` (batas server)."""
+    hasil: list[str] = []
+    for m in mmsi:
+        m = str(m).strip()
+        if len(m) == 9 and m.isdigit() and m not in hasil:
+            hasil.append(m)
+        if len(hasil) >= maks:
+            break
+    return hasil
+
+
+def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DURASI_DEFAULT,
               maks_pesan: int = 400_000) -> tuple[pd.DataFrame, int, int]:
-    """Dengarkan siaran AIS dunia selama ``durasi`` detik; simpan posisi terakhir kapal dalam ``mmsi_target``.
+    """Dengarkan aisstream selama ``durasi`` detik untuk MMSI dalam ``mmsi_target`` (maksimum 200, sisanya diabaikan).
 
     Mengembalikan (DataFrame kapal target yang terdengar, jumlah pesan diterima, jumlah MMSI unik terdengar).
     """
@@ -119,14 +132,17 @@ def dengarkan(api_key: str, mmsi_target: set[str], durasi: int = DURASI_DEFAULT,
     except ImportError as exc:  # pragma: no cover
         raise AisError("Paket 'websockets' belum terpasang.") from exc
 
-    target = {str(m) for m in mmsi_target if str(m).strip()}
+    daftar = pilih_mmsi(list(mmsi_target))
+    if not daftar:
+        raise AisError("Tidak ada MMSI valid (9 digit) untuk dipantau.")
+    target = set(daftar)
     posisi: dict[str, dict] = {}
     terdengar: set[str] = set()
     jumlah = 0
     batas = time.monotonic() + durasi
     try:
         with connect(URL_STREAM, compression="deflate", open_timeout=15, close_timeout=3) as ws:
-            ws.send(json.dumps(pesan_langganan(api_key)))
+            ws.send(json.dumps(pesan_langganan(api_key, mmsi=daftar)))
             while True:
                 sisa = batas - time.monotonic()
                 if sisa <= 0 or jumlah >= maks_pesan:
@@ -141,6 +157,8 @@ def dengarkan(api_key: str, mmsi_target: set[str], durasi: int = DURASI_DEFAULT,
                     continue
                 if "error" in pesan and "MessageType" not in pesan:
                     raise AisError(f"aisstream.io menolak: {pesan['error']}")
+                if pesan.get("MessageType") == "SubscriptionConfirmation":
+                    continue
                 jumlah += 1
                 meta = pesan.get("MetaData") or {}
                 mmsi = str(meta.get("MMSI") or "")
@@ -154,9 +172,13 @@ def dengarkan(api_key: str, mmsi_target: set[str], durasi: int = DURASI_DEFAULT,
         raise
     except (WebSocketException, OSError, TimeoutError) as exc:
         if jumlah == 0:
-            raise AisError(f"Tidak dapat terhubung ke aisstream.io ({type(exc).__name__}: {exc}).") from exc
-    if jumlah == 0:
-        raise AisError("Terhubung, tetapi tidak ada pesan diterima. Kunci API mungkin salah atau kuota habis.")
+            raise AisError(
+                f"Koneksi ke aisstream.io ditutup ({type(exc).__name__}: {exc}). Penyebab umum menurut dokumentasi: "
+                "kunci API tidak valid, sudah ada 3 koneksi aktif untuk akun yang sama, atau langganan ditolak."
+            ) from exc
+    if jumlah == 0 and not posisi:
+        # Normal bila tidak ada kapal target yang memancar selama rentang ini; biarkan pemanggil menampilkan 0.
+        pass
     return ke_dataframe(posisi), jumlah, len(terdengar)
 
 

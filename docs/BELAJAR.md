@@ -201,9 +201,11 @@ posisi, kecepatan, haluan. Tiga identitas kapal yang perlu dibedakan:
 | **MMSI** | 9 digit, identitas radio; berubah bila ganti bendera | pencocokan dengan pesan AIS |
 | Nama / call sign | mudah diganti | petunjuk tambahan |
 
-aisstream.io meneruskan pesan AIS dari ribuan penerima sukarelawan lewat WebSocket. Aplikasi berlangganan seluruh dunia,
-menyaring pesan yang `MMSI`-nya ada di himpunan kapal tersanksi, dan menyimpan posisi terakhir per kapal. Kapal yang
-mematikan AIS (praktik umum armada bayangan) tidak akan muncul, dan ketiadaan sinyal itu sendiri informasi.
+aisstream.io meneruskan pesan AIS dari ribuan penerima sukarelawan lewat WebSocket. Aplikasi mengirim daftar MMSI kapal
+tersanksi dalam langganan (`FiltersShipMMSI`, maksimum 200 per langganan), lalu menyimpan posisi terakhir per kapal.
+Pelajaran dari percobaan pertama: berlangganan seluruh dunia tanpa filter dan menyaring di sisi klien gagal, karena
+server memutus klien yang tidak sanggup mengikuti ribuan pesan per detik. Kapal yang mematikan AIS (praktik umum armada
+bayangan) tidak akan muncul, dan ketiadaan sinyal itu sendiri informasi.
 
 ## 12. Membaca hasil dengan hati-hati
 

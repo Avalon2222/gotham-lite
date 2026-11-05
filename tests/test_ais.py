@@ -58,3 +58,11 @@ def test_ambil_api_key(monkeypatch):
     assert ais.ambil_api_key() == "abc"
     monkeypatch.setenv("AISSTREAM_API_KEY", "")
     assert ais.ambil_api_key() is None
+
+
+def test_pilih_mmsi():
+    assert ais.pilih_mmsi(["351000001", "351000001", " 538000002 ", "123", "abcdefghi", ""]) == ["351000001", "538000002"]
+    banyak = [str(100000000 + i) for i in range(250)]
+    assert len(ais.pilih_mmsi(banyak)) == ais.MAKS_MMSI == 200
+    assert ais.pilih_mmsi(banyak, maks=3) == banyak[:3]
+    assert ais.pilih_mmsi([]) == []

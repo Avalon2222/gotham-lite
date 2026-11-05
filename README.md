@@ -18,7 +18,7 @@ can search, click, expand and path-find through.
 
 Built with Python, pandas, networkx, Plotly, Streamlit and the `st-link-analysis` Cytoscape component. Data: the
 OpenSanctions *default* collection (3.9 M entities, 2.5 GB) pruned to the connected part around sanctioned entities by a
-two-pass streaming script; refreshed monthly by GitHub Actions. Engineering: pure logic in `src/` with 33 pytest tests,
+two-pass streaming script; refreshed monthly by GitHub Actions. Engineering: pure logic in `src/` with 34 pytest tests,
 UI in `app.py`. *The rest of this README is in Indonesian.*
 
 **🚀 Coba langsung di browser:** [gotham-lite.streamlit.app](https://gotham-lite.streamlit.app)
@@ -51,7 +51,7 @@ Streamlit berbasis JavaScript.
 |---|---|
 | 🕸️ Explorer | Cari nama/alias/IMO/MMSI atau pilih kasus siap pakai (armada bayangan Iran, kapal Chong Chon Gang, jaringan Prigozhin, Al-Jamal, Rotenberg, Usmanov). Graf Cytoscape dengan warna per tipe (orang, perusahaan, organisasi, kapal, pesawat) dan terang/redup untuk tersanksi/tidak. Klik simpul = panel detail (alias, negara, program sanksi, sumber, IMO/MMSI, tautan OpenSanctions); klik dua kali = perluas tetangga; Delete = sembunyikan; angka `(+n)` = tetangga yang belum tampil |
 | 🔗 Connections | Dua entitas → sampai tiga jalur terpendek (panjang maksimum bisa diatur), digambar sebagai graf dan dibacakan sebagai kalimat per langkah; pasangan contoh: Putin ↔ Sechin, Prigozhin ↔ Kim Jong-un, Al-Jamal ↔ Khamenei |
-| 🚢 Shadow fleet | 2.041 kapal tersanksi: bendera, jenis, otoritas pendaftar, tahun pembuatan, porsi tanker dan bendera kemudahan, umur median; tabel dengan filter dan pencarian; rantai kepemilikan sebuah kapal sampai empat lapis; **Live AIS**: dengarkan siaran aisstream.io dan tampilkan kapal tersanksi yang sedang memancar di peta |
+| 🚢 Shadow fleet | 2.041 kapal tersanksi: bendera, jenis, otoritas pendaftar, tahun pembuatan, porsi tanker dan bendera kemudahan, umur median; tabel dengan filter dan pencarian; rantai kepemilikan sebuah kapal sampai empat lapis; **Live AIS**: pilih kelompok kapal (Rusia, Iran, Korea Utara, tanker, bendera kemudahan, ...), kirim sampai 200 MMSI ke aisstream.io, dan tampilkan yang sedang memancar di peta |
 | 📊 Network stats | Entitas per tipe dan status, jenis relasi, distribusi derajat, komponen terhubung terbesar, hub per tipe, "tidak dalam daftar tetapi dekat" (entitas tak tersanksi dengan tetangga tersanksi terbanyak), negara dan program sanksi |
 | 📋 Data & Sources | Sumber, cara pemangkasan, keterbatasan, tabel dataset sumber dengan tautan, tombol download simpul/relasi/kapal |
 | 🧭 How it works | Diagram alur data, peran setiap modul, penjelasan skema FollowTheMoney dan alasan memakai Cytoscape |
@@ -83,7 +83,7 @@ streamlit run app.py
 ```
 
 Buka `http://localhost:8501`. Aplikasi membaca snapshot di `data/` (±10 MB) sehingga berjalan tanpa internet; memuat graf
-pertama kali memerlukan ±3 detik. Jalankan pengujian dengan `python -m pytest tests/ -v` (33 tes, tanpa internet).
+pertama kali memerlukan ±3 detik. Jalankan pengujian dengan `python -m pytest tests/ -v` (34 tes, tanpa internet).
 
 **Live AIS (opsional).** Daftar gratis di [aisstream.io](https://aisstream.io), lalu simpan kuncinya di
 `.streamlit/secrets.toml` (lokal) atau menu *Secrets* Streamlit Cloud:
@@ -115,7 +115,7 @@ flowchart LR
 | `src/graf.py` | `MultiDiGraph` networkx; pencarian berperingkat; ego-graf BFS dengan prioritas; perluasan; elemen Cytoscape; jalur terpendek (Yen); rantai pemilik kapal (DFS); paparan; statistik jaringan |
 | `src/ais.py` | Klien WebSocket aisstream.io, pengurai pesan posisi, pencocokan MMSI |
 | `app.py` | Sidebar, enam tab, komponen `st-link-analysis` dengan callback klik/expand/remove, grafik Plotly, learning mode |
-| `tests/` | 33 tes pytest: graf buatan kecil untuk setiap fungsi, pengujian skrip pembangun end-to-end, dan konsistensi snapshot asli |
+| `tests/` | 34 tes pytest: graf buatan kecil untuk setiap fungsi, pengujian skrip pembangun end-to-end, dan konsistensi snapshot asli |
 
 Penjelasan konsep (FollowTheMoney, BFS, jalur terpendek, komponen terhubung, hub, paparan, AIS) ada di
 [docs/BELAJAR.md](docs/BELAJAR.md); latihan bertingkat di [docs/LATIHAN.md](docs/LATIHAN.md); rincian sumber di

@@ -634,37 +634,55 @@ with tab_kapal:
 
     st.markdown("#### 📡 Live AIS: kapal tersanksi mana yang sedang memancar?")
     kunci_ais = ais.ambil_api_key()
-    with st.expander("Dengarkan siaran AIS dunia (perlu kunci aisstream.io gratis)", expanded=bool(kunci_ais)):
+    kapal_mmsi = kapal_s[kapal_s["mmsi"].str.fullmatch(r"\d{9}")]
+    KELOMPOK_AIS = {
+        "Paling banyak relasi di graf": kapal_mmsi.sort_values("jumlah_relasi", ascending=False),
+        "Bendera Rusia": kapal_mmsi[kapal_mmsi["bendera"] == "ru"],
+        "Bendera Iran": kapal_mmsi[kapal_mmsi["bendera"] == "ir"],
+        "Bendera Korea Utara": kapal_mmsi[kapal_mmsi["bendera"] == "kp"],
+        "Bendera kemudahan (Panama, Gabon, Kamerun, ...)": kapal_mmsi[kapal_mmsi["bendera"].isin(muat_data.BENDERA_KEMUDAHAN)],
+        "Tanker": kapal_mmsi[kapal_mmsi["jenis_kapal"].str.contains("Tanker", case=False)],
+        "Terbaru masuk daftar": kapal_mmsi.sort_values("pertama_terlihat", ascending=False),
+    }
+    with st.expander("Dengarkan siaran AIS (perlu kunci aisstream.io gratis)", expanded=bool(kunci_ais)):
         st.markdown(
             "AIS adalah sinyal identitas dan posisi yang wajib dipancarkan kapal besar. Dengan kunci gratis dari "
-            "[aisstream.io](https://aisstream.io), aplikasi mendengarkan siaran seluruh dunia selama beberapa puluh detik "
-            f"dan menyaring **{angka((kapal_s['mmsi'] != '').sum())} MMSI** kapal tersanksi. Kapal yang mematikan AIS "
-            "(praktik umum armada bayangan) tidak akan terdengar, dan itu sendiri sebuah temuan."
+            "[aisstream.io](https://aisstream.io), aplikasi meminta server mengirim hanya pesan dari MMSI kapal tersanksi "
+            f"(batas server **{ais.MAKS_MMSI} MMSI per sesi**, dari {angka(len(kapal_mmsi))} kapal tersanksi yang punya MMSI), "
+            "lalu mendengarkan beberapa puluh detik. Kapal yang mematikan AIS (praktik umum armada bayangan) tidak akan "
+            "terdengar, dan itu sendiri sebuah temuan."
         )
         if not kunci_ais:
             kunci_manual = st.text_input("Kunci API aisstream.io", type="password",
-                                         help="Di Streamlit Cloud, isi Secrets: [aisstream]\\napi_key = \"...\"")
+                                         help="Di Streamlit Cloud, isi Secrets: [aisstream]\napi_key = \"...\"")
             if kunci_manual.strip():
                 os.environ["AISSTREAM_API_KEY"] = kunci_manual.strip()
                 kunci_ais = kunci_manual.strip()
-        durasi = st.slider("Lama mendengarkan (detik)", 15, 90, 30, 5)
-        if st.button("📡 Dengarkan sekarang", type="primary", disabled=not kunci_ais):
-            target = set(kapal_s.loc[kapal_s["mmsi"] != "", "mmsi"])
+        ka1, ka2 = st.columns([2, 1])
+        nama_kelompok = ka1.selectbox("Kelompok kapal yang dipantau", list(KELOMPOK_AIS))
+        durasi = ka2.slider("Lama mendengarkan (detik)", 15, 90, 30, 5)
+        kelompok = KELOMPOK_AIS[nama_kelompok]
+        daftar_mmsi = ais.pilih_mmsi(kelompok["mmsi"].tolist())
+        st.caption(f"{len(daftar_mmsi)} MMSI dikirim ke server" +
+                   (f" (dari {angka(len(kelompok))} kapal di kelompok ini; sisanya di luar batas sesi)." if len(kelompok) > len(daftar_mmsi) else "."))
+        if st.button("📡 Dengarkan sekarang", type="primary", disabled=not kunci_ais or not daftar_mmsi):
             with st.spinner(f"Mendengarkan aisstream.io selama {durasi} detik..."):
                 try:
-                    df_pos, n_pesan, n_kapal = ais.dengarkan(kunci_ais, target, durasi)
-                    ss["ais_hasil"] = (ais.gabung_dengan_kapal(df_pos, kapal_s), n_pesan, n_kapal, ais.sekarang_utc())
+                    df_pos, n_pesan, n_kapal = ais.dengarkan(kunci_ais, daftar_mmsi, durasi)
+                    ss["ais_hasil"] = (ais.gabung_dengan_kapal(df_pos, kapal_s), n_pesan, n_kapal, ais.sekarang_utc(),
+                                       nama_kelompok, len(daftar_mmsi))
                 except ais.AisError as exc:
                     st.error(str(exc))
         if "ais_hasil" in ss:
-            df_pos, n_pesan, n_kapal, waktu = ss["ais_hasil"]
+            df_pos, n_pesan, n_kapal, waktu, kel_hasil, n_dipantau = ss["ais_hasil"]
             a1, a2, a3 = st.columns(3)
-            a1.metric("Pesan diterima", angka(n_pesan))
-            a2.metric("Kapal unik terdengar", angka(n_kapal))
+            a1.metric("MMSI dipantau", angka(n_dipantau), help=kel_hasil)
+            a2.metric("Pesan diterima", angka(n_pesan))
             a3.metric("Kapal tersanksi terdengar", angka(len(df_pos)))
             if df_pos.empty:
-                st.info("Tidak ada kapal tersanksi yang memancar dalam rentang ini. Coba lebih lama; cakupan penerima "
-                        "aisstream terbaik di pesisir Eropa dan Asia Timur.")
+                st.info("Tidak ada kapal dalam kelompok ini yang memancar selama rentang tadi. Coba kelompok lain atau "
+                        "durasi lebih lama; cakupan penerima aisstream terbaik di pesisir Eropa dan Asia Timur, dan banyak "
+                        "kapal tersanksi memang mematikan AIS.")
             else:
                 fig = go.Figure(go.Scattergeo(
                     lat=df_pos["lat"], lon=df_pos["lon"], mode="markers",
@@ -678,7 +696,7 @@ with tab_kapal:
                 fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="#243044",
                                 showland=True, landcolor="#151a24", showocean=True, oceancolor="#0b0e14",
                                 coastlinecolor="#2b3a55", bgcolor="rgba(0,0,0,0)")
-                fig.update_layout(title=f"Kapal tersanksi yang memancar AIS · {waktu:%d %b %Y %H:%M} UTC")
+                fig.update_layout(title=f"Kapal tersanksi yang memancar AIS · {kel_hasil} · {waktu:%d %b %Y %H:%M} UTC")
                 st.plotly_chart(rapikan(fig, 480), use_container_width=True)
                 st.dataframe(df_pos[["nama", "nama_ais", "bendera", "imo", "mmsi", "lat", "lon", "sog_knot", "status_nav", "program"]]
                              .rename(columns={"nama": "Nama di daftar", "nama_ais": "Nama di AIS", "bendera": "Bendera",
@@ -704,7 +722,10 @@ def telusur(n, jejak, terlihat):
 ```
 
 Untuk AIS: setiap kapal punya **MMSI** (identitas radio 9 digit) dan **IMO** (nomor lambung seumur hidup). Daftar sanksi
-mencatat keduanya, sehingga pesan AIS bisa dicocokkan langsung lewat MMSI. Kode WebSocket-nya ada di `src/ais.py`.
+mencatat keduanya, sehingga pesan AIS bisa dicocokkan langsung lewat MMSI. aisstream menerima paling banyak 200 MMSI per
+langganan, karena itu kapal dipilih per kelompok. Percobaan pertama berlangganan seluruh dunia tanpa filter dan menyaring
+di sisi klien; server memutus koneksi karena klien tidak sanggup mengikuti ribuan pesan per detik. Kode WebSocket-nya ada
+di `src/ais.py`.
 """)
 
 # ----------------------------------------------------------------------------
