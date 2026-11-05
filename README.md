@@ -18,7 +18,7 @@ can search, click, expand and path-find through.
 
 Built with Python, pandas, networkx, Plotly, Streamlit and the `st-link-analysis` Cytoscape component. Data: the
 OpenSanctions *default* collection (3.9 M entities, 2.5 GB) pruned to the connected part around sanctioned entities by a
-two-pass streaming script; refreshed monthly by GitHub Actions. Engineering: pure logic in `src/` with 32 pytest tests,
+two-pass streaming script; refreshed monthly by GitHub Actions. Engineering: pure logic in `src/` with 33 pytest tests,
 UI in `app.py`. *The rest of this README is in Indonesian.*
 
 **🚀 Coba langsung di browser:** [gotham-lite.streamlit.app](https://gotham-lite.streamlit.app)
@@ -83,7 +83,7 @@ streamlit run app.py
 ```
 
 Buka `http://localhost:8501`. Aplikasi membaca snapshot di `data/` (±10 MB) sehingga berjalan tanpa internet; memuat graf
-pertama kali memerlukan ±3 detik. Jalankan pengujian dengan `python -m pytest tests/ -v` (32 tes, tanpa internet).
+pertama kali memerlukan ±3 detik. Jalankan pengujian dengan `python -m pytest tests/ -v` (33 tes, tanpa internet).
 
 **Live AIS (opsional).** Daftar gratis di [aisstream.io](https://aisstream.io), lalu simpan kuncinya di
 `.streamlit/secrets.toml` (lokal) atau menu *Secrets* Streamlit Cloud:
@@ -115,7 +115,7 @@ flowchart LR
 | `src/graf.py` | `MultiDiGraph` networkx; pencarian berperingkat; ego-graf BFS dengan prioritas; perluasan; elemen Cytoscape; jalur terpendek (Yen); rantai pemilik kapal (DFS); paparan; statistik jaringan |
 | `src/ais.py` | Klien WebSocket aisstream.io, pengurai pesan posisi, pencocokan MMSI |
 | `app.py` | Sidebar, enam tab, komponen `st-link-analysis` dengan callback klik/expand/remove, grafik Plotly, learning mode |
-| `tests/` | 32 tes pytest: graf buatan kecil untuk setiap fungsi, pengujian skrip pembangun end-to-end, dan konsistensi snapshot asli |
+| `tests/` | 33 tes pytest: graf buatan kecil untuk setiap fungsi, pengujian skrip pembangun end-to-end, dan konsistensi snapshot asli |
 
 Penjelasan konsep (FollowTheMoney, BFS, jalur terpendek, komponen terhubung, hub, paparan, AIS) ada di
 [docs/BELAJAR.md](docs/BELAJAR.md); latihan bertingkat di [docs/LATIHAN.md](docs/LATIHAN.md); rincian sumber di
@@ -131,7 +131,7 @@ gotham-lite/
 │   ├── graf.py                # inti analisis keterkaitan (networkx)
 │   └── ais.py                 # klien aisstream.io
 ├── scripts/bangun_data.py     # pembangun snapshot dari OpenSanctions
-├── data/                      # simpul.csv.gz, relasi.csv.gz, dataset.csv, META.json, SUMBER_DATA.md
+├── data/                      # simpul.csv.gz, relasi.csv.gz, kapal_tersanksi.csv, dataset.csv, META.json
 ├── tests/                     # pytest
 ├── docs/                      # BELAJAR.md, LATIHAN.md, screenshots/
 └── .github/workflows/         # tests.yml, perbarui-data.yml (bulanan)

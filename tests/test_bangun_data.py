@@ -88,3 +88,20 @@ def test_bangun_end_to_end(tmp_path):
     assert set(simpul["id"]) == {"P1", "C1", "V1"}
     dataset = pd.read_csv(keluaran / "dataset.csv")
     assert dataset.loc[0, "judul"] == "Dataset Uji" and dataset.loc[0, "jumlah_simpul"] == 3
+
+
+def test_tulis_kapal(tmp_path):
+    simpul = pd.DataFrame([
+        {"id": "V1", "tipe": "Vessel", "nama": "Tanker", "tersanksi": 1, "bendera": "pa", "jenis_kapal": "Oil Tanker",
+         "imo": "1", "mmsi": "2", "tanggal": "2001-05-05", "program": "EU-RUS", "dataset": "eu_fsf", "pertama_terlihat": "2024-01-01"},
+        {"id": "V2", "tipe": "Vessel", "nama": "Bebas", "tersanksi": 0, "bendera": "", "jenis_kapal": "", "imo": "", "mmsi": "",
+         "tanggal": "", "program": "", "dataset": "x", "pertama_terlihat": ""},
+        {"id": "C1", "tipe": "Company", "nama": "Holding", "tersanksi": 1, "bendera": "", "jenis_kapal": "", "imo": "", "mmsi": "",
+         "tanggal": "", "program": "", "dataset": "x", "pertama_terlihat": ""},
+    ])
+    relasi = pd.DataFrame([{"sumber": "C1", "tujuan": "V1", "tipe": "Ownership"}, {"sumber": "C1", "tujuan": "V1", "tipe": "UnknownLink"},
+                           {"sumber": "V1", "tujuan": "C1", "tipe": "Ownership"}])
+    k = bd.tulis_kapal(simpul, relasi, str(tmp_path))
+    assert k["id"].tolist() == ["V1"]
+    assert k.iloc[0]["pemilik"] == "Holding" and k.iloc[0]["jumlah_relasi"] == 3 and int(k.iloc[0]["tahun_dibangun"]) == 2001
+    assert (tmp_path / "kapal_tersanksi.csv").exists()

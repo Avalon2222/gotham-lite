@@ -16,8 +16,9 @@ Skrip ini membaca berkas koleksi ``default`` (±2,5 GB, ±3,9 juta baris) dalam 
 2. Lintasan kedua menulis simpul (node) untuk benih yang punya relasi dan untuk tetangganya,
    lengkap dengan atribut ringkas: nama, negara, program sanksi, IMO/MMSI kapal, dan sebagainya.
 
-Hasilnya dua berkas kecil di ``data/`` yang dibaca aplikasi tanpa internet:
-``simpul.csv.gz`` dan ``relasi.csv.gz``, ditambah ``META.json`` berisi tanggal dan jumlah.
+Hasilnya berkas kecil di ``data/`` yang dibaca aplikasi tanpa internet: ``simpul.csv.gz`` dan
+``relasi.csv.gz`` (graf), ``dataset.csv`` (judul dataset sumber), ``kapal_tersanksi.csv`` (ringkasan satu
+baris per kapal), dan ``META.json`` berisi tanggal dan jumlah.
 """
 
 from __future__ import annotations
@@ -294,6 +295,30 @@ def tulis_dataset(df_simpul: pd.DataFrame, df_relasi: pd.DataFrame, keluaran: st
     return df
 
 
+RELASI_PEMILIK = {"Ownership", "Directorship", "Representation", "UnknownLink"}
+
+
+def tulis_kapal(df_simpul: pd.DataFrame, df_relasi: pd.DataFrame, keluaran: str) -> pd.DataFrame:
+    """Tabel ringkas satu baris per kapal tersanksi (CSV biasa, mudah dibaca orang dan aplikasi lain)."""
+    nama = dict(zip(df_simpul["id"], df_simpul["nama"]))
+    masuk = df_relasi[df_relasi["tipe"].isin(RELASI_PEMILIK)]
+    pemilik: dict[str, list[str]] = {}
+    for s, t in zip(masuk["sumber"], masuk["tujuan"]):
+        daftar = pemilik.setdefault(t, [])
+        if nama.get(s) and nama[s] not in daftar:
+            daftar.append(nama[s])
+    jumlah_relasi = Counter(df_relasi["sumber"].tolist() + df_relasi["tujuan"].tolist())
+    kapal = df_simpul[(df_simpul["tipe"] == "Vessel") & (df_simpul["tersanksi"] == 1)].copy()
+    kapal["tahun_dibangun"] = pd.to_numeric(kapal["tanggal"].str[:4], errors="coerce").astype("Int64")
+    kapal["pemilik"] = [("; ".join(pemilik.get(i, []))[:200]) for i in kapal["id"]]
+    kapal["jumlah_relasi"] = [int(jumlah_relasi.get(i, 0)) for i in kapal["id"]]
+    kolom = ["id", "nama", "bendera", "jenis_kapal", "imo", "mmsi", "tahun_dibangun", "program", "dataset", "pemilik",
+             "jumlah_relasi", "pertama_terlihat"]
+    kapal = kapal[kolom].sort_values(["jumlah_relasi", "nama"], ascending=[False, True])
+    kapal.to_csv(os.path.join(keluaran, "kapal_tersanksi.csv"), index=False)
+    return kapal
+
+
 def bangun(path: str, keluaran: str, indeks: str | None = None) -> dict:
     benih, relasi_mentah = lintasan_pertama(path)
     print(f"Benih bertopik sanksi: {len(benih):,}; relasi mentah: {len(relasi_mentah):,}", file=sys.stderr)
@@ -313,6 +338,7 @@ def bangun(path: str, keluaran: str, indeks: str | None = None) -> dict:
     df_s.to_csv(os.path.join(keluaran, "simpul.csv.gz"), index=False, compression="gzip")
     df_r.to_csv(os.path.join(keluaran, "relasi.csv.gz"), index=False, compression="gzip")
     df_d = tulis_dataset(df_s, df_r, keluaran, indeks)
+    df_k = tulis_kapal(df_s, df_r, keluaran)
 
     meta = {
         "sumber": "OpenSanctions (koleksi default)",
@@ -324,6 +350,7 @@ def bangun(path: str, keluaran: str, indeks: str | None = None) -> dict:
         "relasi_per_tipe": {k: int(v) for k, v in Counter(df_r["tipe"]).most_common()},
         "benih_tersanksi": int(len(benih)),
         "jumlah_dataset": int(len(df_d)),
+        "jumlah_kapal_tersanksi": int(len(df_k)),
     }
     with open(os.path.join(keluaran, "META.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)

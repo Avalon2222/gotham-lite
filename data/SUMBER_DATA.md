@@ -48,6 +48,12 @@ Semua berkas di folder ini dibuat oleh `scripts/bangun_data.py` dan dibaca aplik
 | `dataset` | dataset sumber pertama |
 | `persen` | `percentage` kepemilikan bila ada |
 
+### `kapal_tersanksi.csv`
+
+Ringkasan satu baris per kapal tersanksi (turunan dari dua berkas di atas): nama, bendera, jenis, IMO, MMSI, tahun
+dibangun, program, dataset, pemilik/operator yang tercatat lewat relasi masuk, jumlah relasi, dan tanggal pertama
+terlihat. Berkas CSV biasa agar mudah dipakai proyek lain.
+
 ### `dataset.csv`
 
 Judul, penerbit, negara penerbit, URL, dan jumlah simpul/relasi untuk setiap id dataset yang muncul di graf.
