@@ -37,7 +37,7 @@ st.set_page_config(page_title="Gotham Lite", page_icon="🕸️", layout="wide")
 try:
     _kunci = st.secrets.get("aisstream", {}).get("api_key")
     if _kunci:
-        os.environ.setdefault("AISSTREAM_API_KEY", str(_kunci))
+        os.environ["AISSTREAM_API_KEY"] = str(_kunci).strip()  # selalu ikuti Secrets terbaru, bukan nilai lama
 except Exception:  # tidak ada berkas secrets
     pass
 
