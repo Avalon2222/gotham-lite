@@ -1,0 +1,29 @@
+{
+  "sumber": "OpenSanctions (koleksi default)",
+  "url": "https://data.opensanctions.org/datasets/latest/default/entities.ftm.json",
+  "dibangun_pada": "2026-11-05 10:55 UTC",
+  "jumlah_simpul": 84735,
+  "jumlah_relasi": 96661,
+  "simpul_per_tipe": {
+    "Company": 56096,
+    "Person": 24295,
+    "Vessel": 2260,
+    "Organization": 1466,
+    "Airplane": 325,
+    "LegalEntity": 289,
+    "PublicBody": 3,
+    "Asset": 1
+  },
+  "relasi_per_tipe": {
+    "Ownership": 44791,
+    "Directorship": 34703,
+    "UnknownLink": 11783,
+    "Family": 2720,
+    "Representation": 1590,
+    "Employment": 464,
+    "Membership": 437,
+    "Associate": 173
+  },
+  "benih_tersanksi": 123271,
+  "jumlah_dataset": 217
+}

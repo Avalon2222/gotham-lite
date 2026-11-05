@@ -1,0 +1,9 @@
+streamlit==1.66.1
+st-link-analysis==0.4.0
+pandas==3.0.5
+numpy==2.5.3
+plotly==7.1.0
+networkx==3.7
+requests==2.34.2
+websockets==17.4
+pytest==9.2.0

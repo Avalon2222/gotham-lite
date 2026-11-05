@@ -1,0 +1,31 @@
+name: Perbarui graf OpenSanctions
+
+on:
+  schedule:
+    - cron: "23 2 1 * *"   # tanggal 1 tiap bulan, 02:23 UTC (09:23 WIB)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  perbarui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas requests
+      - name: Unduh koleksi default OpenSanctions dan bangun ulang graf
+        run: python scripts/bangun_data.py
+      - name: Pengujian cepat
+        run: pip install pytest networkx && python -m pytest tests/ -q
+      - name: Commit bila ada perubahan
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet && echo "Tidak ada perubahan" && exit 0
+          git commit -m "Perbarui snapshot graf OpenSanctions bulanan"
+          git push
