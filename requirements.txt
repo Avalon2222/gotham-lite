@@ -1,7 +1,7 @@
 streamlit==1.66.1
 st-link-analysis==0.4.0
-pandas==3.0.5
-numpy==2.5.3
+pandas==3.1.0
+numpy==2.5.4
 plotly==7.1.0
 networkx==3.7
 requests==2.34.2
