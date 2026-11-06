@@ -1,5 +1,7 @@
 # 🕸️ Gotham Lite
 
+[![tests](https://github.com/Avalon2222/gotham-lite/actions/workflows/tests.yml/badge.svg)](https://github.com/Avalon2222/gotham-lite/actions/workflows/tests.yml) [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://gotham-lite.streamlit.app)
+
 > Versi mini perangkat analisis keterkaitan (*link analysis*) ala intelijen, dibangun dari data sanksi publik:
 > **siapa memiliki apa, siapa keluarga siapa, kapal mana milik siapa**, dalam satu graf interaktif yang bisa diklik,
 > diperluas, dan ditelusuri jalurnya. Data dari OpenSanctions (84.735 entitas, 96.661 relasi), digambar dengan
