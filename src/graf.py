@@ -364,34 +364,30 @@ def ringkasan(H: nx.Graph, simpul: pd.DataFrame, relasi: pd.DataFrame) -> dict:
     }
 
 
+def _hitung_daftar(kolom: pd.Series, n: int) -> list[tuple[str, int]]:
+    """Kolom berisi daftar 'a; b; c' -> n item paling sering. Sel kosong/NaN dan spasi diabaikan."""
+    c: Counter = Counter()
+    for teks in kolom.dropna():
+        c.update({k.strip() for k in str(teks).split(";") if k.strip()})
+    return c.most_common(n)
+
+
 def hitung_per_negara(simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
     """Jumlah entitas per negara (satu entitas bisa dihitung di beberapa negara)."""
-    c: Counter = Counter()
-    for teks in simpul["negara"]:
-        for k in str(teks).split("; "):
-            if k:
-                c[k] += 1
-    df = pd.DataFrame(c.most_common(n), columns=["kode", "jumlah"])
+    df = pd.DataFrame(_hitung_daftar(simpul["negara"], n), columns=["kode", "jumlah"])
     df["negara"] = df["kode"].map(nama_negara)
     return df
 
 
 def hitung_program(simpul: pd.DataFrame, n: int = 15) -> pd.DataFrame:
-    c: Counter = Counter()
-    for teks in simpul.loc[simpul["tersanksi"] == 1, "program"]:
-        for k in str(teks).split("; "):
-            if k:
-                c[k] += 1
-    return pd.DataFrame(c.most_common(n), columns=["program", "jumlah"])
+    """Program sanksi paling sering, hanya dari entitas yang tersanksi."""
+    tersanksi = simpul.loc[simpul["tersanksi"] == 1, "program"]
+    return pd.DataFrame(_hitung_daftar(tersanksi, n), columns=["program", "jumlah"])
 
 
 def hitung_dataset(simpul: pd.DataFrame, judul: dict[str, str], n: int = 15) -> pd.DataFrame:
-    c: Counter = Counter()
-    for teks in simpul["dataset"]:
-        for k in str(teks).split("; "):
-            if k:
-                c[k] += 1
-    df = pd.DataFrame(c.most_common(n), columns=["dataset", "jumlah"])
+    """Dataset sumber paling sering, lengkap dengan judul yang enak dibaca."""
+    df = pd.DataFrame(_hitung_daftar(simpul["dataset"], n), columns=["dataset", "jumlah"])
     df["judul"] = df["dataset"].map(lambda d: judul.get(d, d))
     return df
 

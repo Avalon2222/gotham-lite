@@ -138,3 +138,31 @@ def test_hitung_negara_program_dataset_derajat(H, simpul_kecil):
     dist = graf.distribusi_derajat(H)
     assert dist["jumlah"].sum() == 8
     assert graf.label_gaya("Vessel", 1) == "Vessel" and graf.label_gaya("Vessel", 0) == "Vessel_luar"
+
+
+def test_hitung_dataset_dan_daftar_kotor():
+    simpul = pd.DataFrame({
+        "negara": ["ru; cy", "ru;cy ", "", None, "ru; ru"],
+        "program": ["A", "A; B", "", "", "B"],
+        "tersanksi": [1, 1, 1, 0, 0],
+        "dataset": ["eu_fsf; us_ofac", "us_ofac", "", None, "eu_fsf"],
+    })
+    neg = graf.hitung_per_negara(simpul)
+    # spasi dan sel kosong/None tidak jadi negara sendiri, 'ru; ru' dihitung sekali
+    assert dict(zip(neg["kode"], neg["jumlah"])) == {"ru": 3, "cy": 2}
+    prog = graf.hitung_program(simpul)
+    assert dict(zip(prog["program"], prog["jumlah"])) == {"A": 2, "B": 1}   # B kedua tidak tersanksi
+    ds = graf.hitung_dataset(simpul, {"us_ofac": "OFAC SDN"})
+    assert ds.set_index("dataset")["judul"].to_dict() == {"eu_fsf": "eu_fsf", "us_ofac": "OFAC SDN"}
+    assert ds["jumlah"].tolist() == [2, 2]
+
+
+def test_relasi_antara_dua_arah(G):
+    r = graf.relasi_antara(G, "C1", "P1")
+    assert r and all((x["dari"], x["ke"]) == ("P1", "C1") for x in r)   # arah asli dipertahankan
+    assert graf.relasi_antara(G, "P1", "C1") == r
+    assert graf.relasi_antara(G, "V2", "P1") == []
+
+
+def test_warna_tipe_cadangan():
+    assert graf.warna_tipe("TipeAneh") == "#9ca3af"
