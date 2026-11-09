@@ -70,9 +70,10 @@ def _waktu_meta(meta: dict):
     """``time_utc`` aisstream berbentuk '2024-01-01 12:34:56.123456789 +0000 UTC'; ambil detiknya saja."""
     teks = str(meta.get("time_utc", ""))[:19]
     try:
-        return pd.Timestamp(teks, tz="UTC")
+        waktu = pd.Timestamp(teks, tz="UTC")
     except (ValueError, TypeError):
         return None
+    return None if pd.isna(waktu) else waktu  # teks kosong menghasilkan NaT, bukan error
 
 
 def urai_posisi(pesan: dict) -> dict | None:
