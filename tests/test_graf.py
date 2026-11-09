@@ -166,3 +166,10 @@ def test_relasi_antara_dua_arah(G):
 
 def test_warna_tipe_cadangan():
     assert graf.warna_tipe("TipeAneh") == "#9ca3af"
+
+
+def test_label_tipe_semua_berupa_salinan():
+    label = graf.label_tipe_semua()
+    assert label["Vessel"] == "Kapal"
+    label["Vessel"] = "diubah"
+    assert graf.label_tipe_semua()["Vessel"] == "Kapal"   # kamus asli tidak ikut berubah
