@@ -66,3 +66,19 @@ def test_pilih_mmsi():
     assert len(ais.pilih_mmsi(banyak)) == ais.MAKS_MMSI == 200
     assert ais.pilih_mmsi(banyak, maks=3) == banyak[:3]
     assert ais.pilih_mmsi([]) == []
+
+
+def test_angka_aman():
+    assert ais._angka("12.5") == 12.5
+    assert ais._angka(None) is None and ais._angka("x") is None
+    assert ais._angka(float("nan"), 0) == 0
+
+
+def test_waktu_meta():
+    assert ais._waktu_meta({"time_utc": "2026-11-05 08:00:01.5 +0000 UTC"}) == pd.Timestamp("2026-11-05 08:00:01", tz="UTC")
+    assert ais._waktu_meta({}) is None
+    assert ais._waktu_meta({"time_utc": "rusak"}) is None
+
+
+def test_sekarang_utc_punya_zona():
+    assert ais.sekarang_utc().utcoffset().total_seconds() == 0
