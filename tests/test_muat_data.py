@@ -62,3 +62,20 @@ def test_snapshot_asli_ada_dan_konsisten():
     assert d.simpul["tersanksi"].isin([0, 1]).all()
     assert set(d.relasi["tipe"]).issubset(set(muat_data.LABEL_RELASI))
     assert "us_ofac_sdn" in muat_data.judul_dataset(d.dataset)
+
+
+def test_setiap_tipe_di_snapshot_punya_label_dan_warna():
+    """Tipe baru dari OpenSanctions harus diberi label Indonesia dan warna, jangan sampai jatuh ke abu-abu."""
+    meta = muat_data.muat_meta()
+    for tipe in meta["simpul_per_tipe"]:
+        assert tipe in muat_data.LABEL_TIPE, tipe
+        assert tipe in muat_data.WARNA_TIPE, tipe
+
+
+def test_muat_dataset_tidak_mengubah_kosong_jadi_nan(tmp_path):
+    path = tmp_path / "dataset.csv"
+    pd.DataFrame([{"dataset": "uji", "judul": "Uji", "penerbit": "", "negara_penerbit": "",
+                   "url": "", "jumlah_simpul": 3, "jumlah_relasi": 0}]).to_csv(path, index=False)
+    df = muat_data.muat_dataset(str(path))
+    assert df.loc[0, "penerbit"] == ""
+    assert df.loc[0, "negara_penerbit"] == ""
