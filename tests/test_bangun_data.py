@@ -105,3 +105,30 @@ def test_tulis_kapal(tmp_path):
     assert k["id"].tolist() == ["V1"]
     assert k.iloc[0]["pemilik"] == "Holding" and k.iloc[0]["jumlah_relasi"] == 3 and int(k.iloc[0]["tahun_dibangun"]) == 2001
     assert (tmp_path / "kapal_tersanksi.csv").exists()
+
+
+def test_helper_properti():
+    p = {"name": ["Alpha", " Alpha ", "Beta", ""], "flag": ["PA"], "country": ["ru", "RU"], "citizenship": ["cy"]}
+    assert bd._pertama(p, "name") == "Alpha"
+    assert bd._pertama(p, "tidak_ada", "-") == "-"
+    assert bd._gabung(p, "name") == "Alpha; Beta"
+    assert bd._gabung(p, "name", maks=1) == "Alpha"
+    assert bd._negara(p) == "ru; cy; pa"
+
+
+def test_bersih_imo():
+    assert bd._bersih_imo("IMO9000001") == "9000001"
+    assert bd._bersih_imo(" imo 9000001 ") == "9000001"
+    assert bd._bersih_imo("tidak diketahui") == ""
+
+
+def test_iter_entitas_baca_jsonl_biasa_dan_gzip(tmp_path):
+    import gzip
+    isi = '{"id": "A"}\n\n{"id": "B"}\n'
+    biasa = tmp_path / "entitas.json"
+    biasa.write_text(isi, encoding="utf-8")
+    padat = tmp_path / "entitas.json.gz"
+    with gzip.open(padat, "wt", encoding="utf-8") as f:
+        f.write(isi)
+    for path in (biasa, padat):
+        assert [e["id"] for e in bd._iter_entitas(str(path), "uji")] == ["A", "B"]
