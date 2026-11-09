@@ -173,3 +173,15 @@ def test_label_tipe_semua_berupa_salinan():
     assert label["Vessel"] == "Kapal"
     label["Vessel"] = "diubah"
     assert graf.label_tipe_semua()["Vessel"] == "Kapal"   # kamus asli tidak ikut berubah
+
+
+def test_prioritas_tersanksi_lalu_kapal_lalu_derajat(H):
+    urut = sorted(["C2", "V1", "P2", "O1", "C1"], key=lambda n: graf._prioritas(H, n))
+    # Tersanksi dulu (kapal, organisasi, perusahaan), baru yang tidak tersanksi (orang sebelum perusahaan).
+    assert urut == ["V1", "O1", "C1", "P2", "C2"]
+
+
+def test_hitung_daftar_abaikan_kosong_dan_duplikat_dalam_sel():
+    kolom = pd.Series(["ru; cy", "ru;ru", None, "", " pa ", "cy"])
+    assert sorted(graf._hitung_daftar(kolom, 2)) == [("cy", 2), ("ru", 2)]
+    assert dict(graf._hitung_daftar(kolom, 10))["pa"] == 1
