@@ -163,6 +163,8 @@ def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DUR
                 jumlah += 1
                 meta = pesan.get("MetaData") or {}
                 mmsi = str(meta.get("MMSI") or "")
+                if not mmsi:
+                    continue
                 terdengar.add(mmsi)
                 if mmsi not in target:
                     continue
@@ -178,9 +180,8 @@ def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DUR
                 "persis seperti ini bila kunci API salah; periksa kembali kunci di Secrets (bagian [aisstream], "
                 "api_key) atau buat kunci baru di aisstream.io. Penyebab lain: sudah ada 3 koneksi aktif untuk akun yang sama."
             ) from exc
-    if jumlah == 0 and not posisi:
-        # Normal bila tidak ada kapal target yang memancar selama rentang ini; biarkan pemanggil menampilkan 0.
-        pass
+    # jumlah == 0 itu normal bila tidak ada kapal target yang memancar selama rentang ini;
+    # pemanggil cukup menampilkan 0.
     return ke_dataframe(posisi), jumlah, len(terdengar)
 
 
