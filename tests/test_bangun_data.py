@@ -132,3 +132,31 @@ def test_iter_entitas_baca_jsonl_biasa_dan_gzip(tmp_path):
         f.write(isi)
     for path in (biasa, padat):
         assert [e["id"] for e in bd._iter_entitas(str(path), "uji")] == ["A", "B"]
+
+
+def _tulis_jsonl(path, baris):
+    path.write_text("\n".join(json.dumps(b) for b in baris) + "\n", encoding="utf-8")
+    return str(path)
+
+
+def test_lintasan_pertama_pisahkan_benih_dan_relasi(tmp_path):
+    sumber = _tulis_jsonl(tmp_path / "e.json", [
+        _entitas("P1", "Person", {"name": ["A"], "topics": ["sanction"]}),
+        _entitas("P2", "Person", {"name": ["B"], "topics": ["role.pep"]}),          # bukan topik benih
+        _entitas("V1", "Vessel", {"name": ["K"], "topics": ["export.control"]}),
+        _entitas("A1", "Address", {"full": ["Jalan"], "topics": ["sanction"]}),      # bukan tipe simpul
+        _entitas("r1", "Ownership", {"owner": ["P1"], "asset": ["V1"]}),
+    ])
+    benih, relasi = bd.lintasan_pertama(sumber)
+    assert benih == {"P1": "Person", "V1": "Vessel"}
+    assert [(r["sumber"], r["tujuan"]) for r in relasi] == [("P1", "V1")]
+
+
+def test_lintasan_kedua_hanya_ambil_simpul_yang_dibutuhkan(tmp_path):
+    sumber = _tulis_jsonl(tmp_path / "e.json", [
+        _entitas("P1", "Person", {"name": ["A"]}),
+        _entitas("P2", "Person", {"name": ["B"]}),
+        _entitas("r1", "Ownership", {"owner": ["P1"], "asset": ["P2"]}),
+    ])
+    simpul = bd.lintasan_kedua(sumber, {"P2", "r1"})
+    assert [s["id"] for s in simpul] == ["P2"]
