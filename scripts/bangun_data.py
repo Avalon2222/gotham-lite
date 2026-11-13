@@ -264,12 +264,15 @@ def unduh(url: str, tujuan: str) -> str:
 def tulis_dataset(df_simpul: pd.DataFrame, df_relasi: pd.DataFrame, keluaran: str, indeks: str | None = None) -> pd.DataFrame:
     """Tabel dataset sumber (judul, penerbit, URL) untuk setiap id dataset yang muncul di graf."""
     dipakai: Counter = Counter()
+    # pd.isna: kalau tabel dibaca ulang dari CSV, sel kosong menjadi NaN (dan str(NaN) == "nan").
     for kolom in df_simpul["dataset"]:
+        if pd.isna(kolom):
+            continue
         for d in str(kolom).split("; "):
             if d:
                 dipakai[d] += 1
     for d in df_relasi["dataset"]:
-        if d:
+        if not pd.isna(d) and d:
             dipakai[d] += 0
     if indeks:
         with open(indeks, encoding="utf-8") as f:
