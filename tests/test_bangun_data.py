@@ -160,3 +160,22 @@ def test_lintasan_kedua_hanya_ambil_simpul_yang_dibutuhkan(tmp_path):
     ])
     simpul = bd.lintasan_kedua(sumber, {"P2", "r1"})
     assert [s["id"] for s in simpul] == ["P2"]
+
+
+def test_tulis_dataset_pakai_indeks_lokal(tmp_path):
+    simpul = pd.DataFrame({"dataset": ["eu_fsf; us_ofac", "us_ofac", float("nan"), ""]})
+    relasi = pd.DataFrame({"dataset": ["us_ofac", "ext_gleif", float("nan")]})
+    indeks = tmp_path / "index.json"
+    indeks.write_text(json.dumps({"datasets": [
+        {"name": "us_ofac", "title": "OFAC SDN", "url": "https://ofac", "publisher": {"name": "OFAC", "country": "us"}},
+    ]}))
+    df = bd.tulis_dataset(simpul, relasi, str(tmp_path), str(indeks)).set_index("dataset")
+    # Sel kosong/NaN tidak boleh muncul sebagai dataset bernama "nan".
+    assert set(df.index) == {"us_ofac", "eu_fsf", "ext_gleif"}
+    assert df.loc["us_ofac", "judul"] == "OFAC SDN" and df.loc["us_ofac", "negara_penerbit"] == "us"
+    assert df.loc["us_ofac", "jumlah_simpul"] == 2 and df.loc["us_ofac", "jumlah_relasi"] == 1
+    # Dataset yang tidak ada di indeks memakai namanya sendiri sebagai judul.
+    assert df.loc["eu_fsf", "judul"] == "eu_fsf"
+    # Dataset yang hanya dipakai relasi tetap tercatat dengan 0 simpul.
+    assert df.loc["ext_gleif", "jumlah_simpul"] == 0
+    assert (tmp_path / "dataset.csv").exists()
