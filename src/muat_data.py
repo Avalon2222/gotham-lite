@@ -121,8 +121,8 @@ def nama_negara(kode: str) -> str:
 
 
 def daftar_negara(teks: str) -> list[str]:
-    """'ru; cy' -> ['Rusia', 'Siprus']."""
-    return [nama_negara(k) for k in str(teks or "").split("; ") if k.strip()]
+    """'ru; cy' -> ['Rusia', 'Siprus']. Pemisah tanpa spasi ('ru;cy') juga diterima."""
+    return [nama_negara(k) for k in str(teks or "").split(";") if k.strip()]
 
 
 def label_tipe(tipe: str) -> str:
