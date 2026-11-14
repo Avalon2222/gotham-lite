@@ -84,3 +84,8 @@ def test_muat_dataset_tidak_mengubah_kosong_jadi_nan(tmp_path):
 def test_daftar_negara_pemisah_tanpa_spasi():
     assert muat_data.daftar_negara("ru;cy") == ["Rusia", "Siprus"]
     assert muat_data.daftar_negara(" ru ;  ; ir ") == ["Rusia", "Iran"]
+
+
+def test_kode_negara_yang_pernah_salah_label():
+    assert muat_data.nama_negara("cv") == "Tanjung Verde"
+    assert muat_data.nama_negara("ga") == "Gabon"
