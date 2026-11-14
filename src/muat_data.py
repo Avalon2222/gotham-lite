@@ -100,16 +100,15 @@ NAMA_NEGARA = {
     "vc": "Saint Vincent", "gd": "Grenada", "vg": "Kepulauan Virgin Britania", "ky": "Kepulauan Cayman",
     "bm": "Bermuda", "gi": "Gibraltar", "je": "Jersey", "gg": "Guernsey", "im": "Isle of Man", "li": "Liechtenstein",
     "mc": "Monako", "sm": "San Marino", "fo": "Kepulauan Faroe", "ad": "Andorra", "va": "Vatikan", "is": "Islandia", "cw": "Curaçao",
-    "sx": "Sint Maarten", "aw": "Aruba", "st": "São Tomé", "cv": "Tanzibar", "ga": "Gabon", "gq": "Guinea Khatulistiwa",
+    "sx": "Sint Maarten", "aw": "Aruba", "st": "São Tomé", "cv": "Tanjung Verde", "gq": "Guinea Khatulistiwa",
     "suhh": "Uni Soviet (lama)", "zz": "Internasional", "xx": "Tidak diketahui", "csxx": "Cekoslowakia (lama)",
     "yucs": "Yugoslavia (lama)", "ddde": "Jerman Timur (lama)",
 }
-NAMA_NEGARA["cv"] = "Tanjung Verde"
 
 # Bendera kemudahan (flag of convenience) menurut daftar ITF; dipakai di tab armada.
 BENDERA_KEMUDAHAN = {"pa", "lr", "mh", "mt", "bs", "ag", "cy", "km", "kh", "vu", "pw", "sl", "tg", "tz", "ga",
                      "gm", "cm", "bb", "bz", "bm", "ky", "vc", "lb", "mn", "md", "ws", "to", "cw", "gq", "hn", "jm",
-                     "kn", "lk", "mu", "sm", "st", "tv", "cw", "ck", "gi", "fo", "bo", "ki", "fm", "ni"}
+                     "kn", "lk", "mu", "sm", "st", "tv", "ck", "gi", "fo", "bo", "ki", "fm", "ni"}
 
 
 def nama_negara(kode: str) -> str:
