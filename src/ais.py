@@ -94,6 +94,8 @@ def urai_posisi(pesan: dict) -> dict | None:
     lon = _angka(isi.get("Longitude", meta.get("longitude")))
     if lat is None or lon is None or abs(lat) > 90 or abs(lon) > 180:
         return None
+    if lat == 0 and lon == 0:  # "Null Island": transponder belum dapat GPS, bukan posisi sungguhan
+        return None
     sog = _angka(isi.get("Sog"))
     cog = _angka(isi.get("Cog"))
     status = _angka(isi.get("NavigationalStatus")) if tipe == "PositionReport" else None
@@ -112,9 +114,11 @@ def urai_posisi(pesan: dict) -> dict | None:
 def pilih_mmsi(mmsi: list[str], maks: int = MAKS_MMSI) -> list[str]:
     """MMSI valid (9 digit), unik, urutan dipertahankan, dipotong pada ``maks`` (batas server)."""
     hasil: list[str] = []
+    sudah: set[str] = set()
     for m in mmsi:
         m = str(m).strip()
-        if len(m) == 9 and m.isdigit() and m not in hasil:
+        if len(m) == 9 and m.isdigit() and m not in sudah:
+            sudah.add(m)
             hasil.append(m)
         if len(hasil) >= maks:
             break
