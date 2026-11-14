@@ -82,3 +82,8 @@ def test_waktu_meta():
 
 def test_sekarang_utc_punya_zona():
     assert ais.sekarang_utc().utcoffset().total_seconds() == 0
+
+
+def test_urai_posisi_buang_null_island():
+    assert ais.urai_posisi(_pesan(lat=0, lon=0)) is None
+    assert ais.urai_posisi(_pesan(lat=0, lon=103.8)) is not None   # khatulistiwa tetap valid
