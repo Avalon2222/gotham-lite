@@ -79,3 +79,8 @@ def test_muat_dataset_tidak_mengubah_kosong_jadi_nan(tmp_path):
     df = muat_data.muat_dataset(str(path))
     assert df.loc[0, "penerbit"] == ""
     assert df.loc[0, "negara_penerbit"] == ""
+
+
+def test_daftar_negara_pemisah_tanpa_spasi():
+    assert muat_data.daftar_negara("ru;cy") == ["Rusia", "Siprus"]
+    assert muat_data.daftar_negara(" ru ;  ; ir ") == ["Rusia", "Iran"]
