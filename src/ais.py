@@ -90,8 +90,9 @@ def urai_posisi(pesan: dict) -> dict | None:
     mmsi = meta.get("MMSI") or isi.get("UserID")
     if not mmsi:
         return None
-    lat = _angka(isi.get("Latitude", meta.get("latitude")))
-    lon = _angka(isi.get("Longitude", meta.get("longitude")))
+    # Pesan bisa membawa "Latitude": null; saat itu pakai koordinat dari MetaData.
+    lat = _angka(isi.get("Latitude"), _angka(meta.get("latitude")))
+    lon = _angka(isi.get("Longitude"), _angka(meta.get("longitude")))
     if lat is None or lon is None or abs(lat) > 90 or abs(lon) > 180:
         return None
     if lat == 0 and lon == 0:  # "Null Island": transponder belum dapat GPS, bukan posisi sungguhan
