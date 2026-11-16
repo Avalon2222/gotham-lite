@@ -24,6 +24,14 @@ def test_distribusi_derajat_jumlah_sama_dengan_simpul():
     assert d.sum() == 5
 
 
+def test_distribusi_derajat_menghitung_simpul_terisolasi():
+    H = nx.path_graph(3)
+    H.add_node("sendiri")
+    d = graf.distribusi_derajat(H).set_index("derajat")["jumlah"]
+    assert d["0"] == 1
+    assert d.sum() == H.number_of_nodes()
+
+
 def test_label_gaya_bedakan_tersanksi():
     assert graf.label_gaya("Person", 1) == "Person"
     assert graf.label_gaya("Vessel", 0) == "Vessel_luar"
