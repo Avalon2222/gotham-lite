@@ -113,7 +113,7 @@ BENDERA_KEMUDAHAN = {"pa", "lr", "mh", "mt", "bs", "ag", "cy", "km", "kh", "vu",
 
 def nama_negara(kode: str) -> str:
     """'ru' -> 'Rusia'; kode yang tidak dikenal dikembalikan dalam huruf besar."""
-    kode = (kode or "").strip().lower()
+    kode = kode.strip().lower() if isinstance(kode, str) else ""  # NaN/None -> kosong
     if not kode:
         return ""
     return NAMA_NEGARA.get(kode, kode.upper())
@@ -121,7 +121,9 @@ def nama_negara(kode: str) -> str:
 
 def daftar_negara(teks: str) -> list[str]:
     """'ru; cy' -> ['Rusia', 'Siprus']. Pemisah tanpa spasi ('ru;cy') juga diterima."""
-    return [nama_negara(k) for k in str(teks or "").split(";") if k.strip()]
+    if not isinstance(teks, str):
+        return []
+    return [nama_negara(k) for k in teks.split(";") if k.strip()]
 
 
 def label_tipe(tipe: str) -> str:

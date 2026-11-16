@@ -18,7 +18,7 @@ from collections import Counter, deque
 import networkx as nx
 import pandas as pd
 
-from .muat_data import LABEL_TIPE, WARNA_TIPE, label_relasi, label_tipe, nama_negara
+from .muat_data import LABEL_TIPE, WARNA_TIPE, daftar_negara, label_relasi, label_tipe, nama_negara
 
 # Tipe entitas yang diprioritaskan saat sebuah graf harus dipangkas agar tetap terbaca.
 PRIORITAS_TIPE = {"Vessel": 0, "Person": 1, "Airplane": 1, "Organization": 2, "Company": 3,
@@ -202,7 +202,7 @@ def elemen_cytoscape(G: nx.MultiDiGraph, simpul: pd.DataFrame, ids: list[str], t
             "nama": (nama[:38] + "…") if len(nama) > 40 else nama,
             "nama_lengkap": nama,
             "tipe": label_tipe(s["tipe"]),
-            "negara": ", ".join(nama_negara(k) for k in str(s["negara"]).split("; ") if k),
+            "negara": ", ".join(daftar_negara(s["negara"])),
             "tersanksi": "ya" if int(s["tersanksi"]) else "tidak",
             "program": str(s["program"]),
             "tetangga_tersembunyi": sisa,

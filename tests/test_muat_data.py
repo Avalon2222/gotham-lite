@@ -14,6 +14,13 @@ def test_nama_negara():
     assert muat_data.daftar_negara("ru; cy; xq") == ["Rusia", "Siprus", "XQ"]
 
 
+def test_nama_negara_nilai_kosong_pandas():
+    assert muat_data.nama_negara(float("nan")) == ""
+    assert muat_data.nama_negara(None) == ""
+    assert muat_data.daftar_negara(float("nan")) == []
+    assert muat_data.daftar_negara("ru;cy") == ["Rusia", "Siprus"]
+
+
 def test_label():
     assert muat_data.label_tipe("Vessel") == "Kapal"
     assert muat_data.label_tipe("Aneh") == "Aneh"
