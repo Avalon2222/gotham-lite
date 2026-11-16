@@ -41,3 +41,15 @@ def test_teks_relasi_persen_dan_peran_dipotong():
     teks = graf.teks_relasi({"tipe": "Ownership", "persen": 51.0, "peran": "x" * 80}, maks_peran=10)
     assert "51%" in teks and teks.endswith("x" * 10 + "…")
     assert "nan" not in graf.teks_relasi({"tipe": "Ownership", "persen": float("nan"), "peran": None})
+
+
+def test_teks_relasi_peran_nan_diabaikan():
+    assert graf.teks_relasi({"tipe": "Ownership", "peran": float("nan"), "persen": None}) == graf.label_relasi("Ownership")
+
+
+def test_cari_tahan_nama_dan_alias_kosong(simpul_kecil, H):
+    simpul = simpul_kecil.copy()
+    simpul["alias"] = simpul["alias"].astype(object)
+    simpul.loc["P1", "alias"] = None
+    hasil = graf.cari(simpul, "oligarki", graf.derajat(H))
+    assert hasil.index[0] == "P1"
