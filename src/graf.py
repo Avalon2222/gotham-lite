@@ -174,7 +174,8 @@ def teks_relasi(d: dict, maks_peran: int = 60) -> str:
     persen = d.get("persen")
     if persen is not None and not pd.isna(persen):
         teks += f" {persen:g}%"
-    peran = (d.get("peran") or "").strip()
+    peran = d.get("peran")
+    peran = peran.strip() if isinstance(peran, str) else ""
     if peran and peran.lower() not in teks.lower():
         teks += f" · {peran[:maks_peran]}" + ("…" if len(peran) > maks_peran else "")
     return teks
