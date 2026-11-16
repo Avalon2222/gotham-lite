@@ -72,8 +72,8 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
     q = (teks or "").strip().lower()
     if len(q) < 2:
         return simpul.iloc[0:0]
-    nama = simpul["nama"].str.lower()
-    alias = simpul["alias"].str.lower()
+    nama = simpul["nama"].fillna("").astype(str).str.lower()
+    alias = simpul["alias"].fillna("").astype(str).str.lower()
     cocok = nama.str.contains(q, regex=False) | alias.str.contains(q, regex=False)
     if q.isdigit():
         cocok |= (simpul["imo"] == q) | (simpul["mmsi"] == q)
@@ -82,7 +82,7 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
         hasil = hasil[hasil["tipe"] == tipe]
     if hasil.empty:
         return hasil
-    skor_awal = hasil["nama"].str.lower().str.startswith(q).astype(int)
+    skor_awal = nama.loc[hasil.index].str.startswith(q).astype(int)
     deg = derajat_simpul.reindex(hasil.index).fillna(0) if derajat_simpul is not None else pd.Series(0, index=hasil.index)
     urut = pd.DataFrame({"awal": skor_awal, "sanksi": hasil["tersanksi"], "deg": deg})
     urutan = urut.sort_values(["awal", "sanksi", "deg"], ascending=[False, False, False]).index
