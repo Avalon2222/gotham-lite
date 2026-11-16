@@ -395,8 +395,10 @@ def hitung_dataset(simpul: pd.DataFrame, judul: dict[str, str], n: int = 15) -> 
 
 def distribusi_derajat(H: nx.Graph) -> pd.DataFrame:
     deg = derajat(H)
-    kelas = pd.cut(deg, bins=[0, 1, 2, 3, 5, 10, 20, 50, 100, 10_000],
-                   labels=["1", "2", "3", "4-5", "6-10", "11-20", "21-50", "51-100", ">100"])
+    # Bin pertama (-1, 0] menampung simpul tanpa relasi; tanpa itu pd.cut membuangnya (NaN)
+    # sehingga total distribusi lebih kecil dari jumlah simpul.
+    kelas = pd.cut(deg, bins=[-1, 0, 1, 2, 3, 5, 10, 20, 50, 100, 10_000],
+                   labels=["0", "1", "2", "3", "4-5", "6-10", "11-20", "21-50", "51-100", ">100"])
     return kelas.value_counts().sort_index().rename_axis("derajat").reset_index(name="jumlah")
 
 
