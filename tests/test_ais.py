@@ -87,3 +87,12 @@ def test_sekarang_utc_punya_zona():
 def test_urai_posisi_buang_null_island():
     assert ais.urai_posisi(_pesan(lat=0, lon=0)) is None
     assert ais.urai_posisi(_pesan(lat=0, lon=103.8)) is not None   # khatulistiwa tetap valid
+
+
+def test_urai_posisi_koordinat_null_pakai_metadata():
+    p = _pesan(lat=-6.1, lon=106.8)
+    p["Message"]["PositionReport"]["Latitude"] = None
+    p["Message"]["PositionReport"]["Longitude"] = None
+    b = ais.urai_posisi(p)
+    assert b is not None
+    assert (b["lat"], b["lon"]) == (-6.1, 106.8)
