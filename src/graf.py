@@ -13,6 +13,7 @@ Dua bentuk graf dipakai:
 
 from __future__ import annotations
 
+import re
 from collections import Counter, deque
 
 import networkx as nx
@@ -75,8 +76,10 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
     nama = simpul["nama"].fillna("").astype(str).str.lower()
     alias = simpul["alias"].fillna("").astype(str).str.lower()
     cocok = nama.str.contains(q, regex=False) | alias.str.contains(q, regex=False)
-    if q.isdigit():
-        cocok |= (simpul["imo"] == q) | (simpul["mmsi"] == q)
+    # "IMO 9187629" atau "mmsi: 351000001" seperti di dokumen sanksi -> cukup angkanya.
+    nomor = re.sub(r"^(imo|mmsi)[\s:#.-]*", "", q)
+    if nomor.isdigit():
+        cocok |= (simpul["imo"] == nomor) | (simpul["mmsi"] == nomor)
     hasil = simpul[cocok]
     if tipe:
         hasil = hasil[hasil["tipe"] == tipe]
