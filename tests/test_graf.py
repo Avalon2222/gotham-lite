@@ -185,3 +185,10 @@ def test_hitung_daftar_abaikan_kosong_dan_duplikat_dalam_sel():
     kolom = pd.Series(["ru; cy", "ru;ru", None, "", " pa ", "cy"])
     assert sorted(graf._hitung_daftar(kolom, 2)) == [("cy", 2), ("ru", 2)]
     assert dict(graf._hitung_daftar(kolom, 10))["pa"] == 1
+
+
+def test_cari_imo_mmsi_dengan_awalan(simpul_kecil, H):
+    deg = graf.derajat(H)
+    assert graf.cari(simpul_kecil, "IMO 9000001", deg).index.tolist() == ["V1"]
+    assert graf.cari(simpul_kecil, "imo9000001", deg).index.tolist() == ["V1"]
+    assert graf.cari(simpul_kecil, "MMSI: 538000002", deg).index.tolist() == ["V2"]
