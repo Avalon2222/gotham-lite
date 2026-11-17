@@ -192,3 +192,11 @@ def test_cari_imo_mmsi_dengan_awalan(simpul_kecil, H):
     assert graf.cari(simpul_kecil, "IMO 9000001", deg).index.tolist() == ["V1"]
     assert graf.cari(simpul_kecil, "imo9000001", deg).index.tolist() == ["V1"]
     assert graf.cari(simpul_kecil, "MMSI: 538000002", deg).index.tolist() == ["V2"]
+
+
+def test_distribusi_derajat_hub_sangat_besar_tetap_terhitung():
+    import networkx as nx
+    H = nx.star_graph(10_500)  # satu hub dengan 10.500 tetangga
+    dist = graf.distribusi_derajat(H).set_index("derajat")["jumlah"]
+    assert dist.sum() == H.number_of_nodes()
+    assert dist[">100"] == 1
