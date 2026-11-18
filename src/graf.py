@@ -369,17 +369,21 @@ def ringkasan(H: nx.Graph, simpul: pd.DataFrame, relasi: pd.DataFrame) -> dict:
     }
 
 
-def _hitung_daftar(kolom: pd.Series, n: int) -> list[tuple[str, int]]:
-    """Kolom berisi daftar 'a; b; c' -> n item paling sering. Sel kosong/NaN dan spasi diabaikan."""
+def _hitung_daftar(kolom: pd.Series, n: int, huruf_kecil: bool = False) -> list[tuple[str, int]]:
+    """Kolom berisi daftar 'a; b; c' -> n item paling sering. Sel kosong/NaN dan spasi diabaikan.
+
+    ``huruf_kecil=True`` untuk kode yang tidak peka huruf (kode negara): 'ru; RU' dihitung sekali.
+    """
     c: Counter = Counter()
     for teks in kolom.dropna():
-        c.update({k.strip() for k in str(teks).split(";") if k.strip()})
+        item = (k.strip() for k in str(teks).split(";"))
+        c.update({k.lower() if huruf_kecil else k for k in item if k})
     return c.most_common(n)
 
 
 def hitung_per_negara(simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
     """Jumlah entitas per negara (satu entitas bisa dihitung di beberapa negara)."""
-    df = pd.DataFrame(_hitung_daftar(simpul["negara"], n), columns=["kode", "jumlah"])
+    df = pd.DataFrame(_hitung_daftar(simpul["negara"], n, huruf_kecil=True), columns=["kode", "jumlah"])
     df["negara"] = df["kode"].map(nama_negara)
     return df
 
