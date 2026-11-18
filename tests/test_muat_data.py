@@ -100,3 +100,14 @@ def test_kode_negara_yang_pernah_salah_label():
 
 def test_daftar_negara_tanpa_duplikat():
     assert muat_data.daftar_negara("ru; RU;cy; ru") == ["Rusia", "Siprus"]
+
+
+def test_muat_simpul_tersanksi_kosong_dan_nama_spasi(tmp_path):
+    kolom = {"id": "A", "tipe": "Person", "nama": "   ", "alias": "", "negara": "ru", "topik": "", "dataset": "uji",
+             "program": "", "tanggal": "", "jabatan": "", "imo": "", "mmsi": "", "bendera": "", "jenis_kapal": "",
+             "tersanksi": "", "catatan": "", "url_sumber": "", "pertama_terlihat": "", "terakhir_berubah": ""}
+    pd.DataFrame([kolom, {**kolom, "id": "B", "nama": " Kapal X ", "tersanksi": "1"}]).to_csv(
+        tmp_path / "simpul.csv.gz", index=False, compression="gzip")
+    df = muat_data.muat_simpul(str(tmp_path / "simpul.csv.gz"))
+    assert list(df["tersanksi"]) == [0, 1]
+    assert list(df["nama"]) == ["(tanpa nama)", "Kapal X"]
