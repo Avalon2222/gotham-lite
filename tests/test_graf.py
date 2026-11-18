@@ -200,3 +200,10 @@ def test_distribusi_derajat_hub_sangat_besar_tetap_terhitung():
     dist = graf.distribusi_derajat(H).set_index("derajat")["jumlah"]
     assert dist.sum() == H.number_of_nodes()
     assert dist[">100"] == 1
+
+
+def test_hitung_per_negara_kode_huruf_besar_tidak_jadi_baris_ganda():
+    simpul = pd.DataFrame({"negara": ["ru; RU", "RU", "ru", "Cy"]})
+    neg = graf.hitung_per_negara(simpul)
+    assert dict(zip(neg["kode"], neg["jumlah"])) == {"ru": 3, "cy": 1}
+    assert neg["negara"].is_unique
