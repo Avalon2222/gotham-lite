@@ -152,8 +152,9 @@ class DataGraf:
 def muat_simpul(path: str | None = None) -> pd.DataFrame:
     path = path or os.path.join(DIR_DATA, "simpul.csv.gz")
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
-    df["tersanksi"] = df["tersanksi"].astype(int)
-    df["nama"] = df["nama"].replace("", "(tanpa nama)")
+    # Sel kosong ("" karena keep_default_na=False) dianggap tidak tersanksi, bukan ValueError.
+    df["tersanksi"] = pd.to_numeric(df["tersanksi"], errors="coerce").fillna(0).astype(int)
+    df["nama"] = df["nama"].str.strip().replace("", "(tanpa nama)")
     df["tahun"] = pd.to_numeric(df["tanggal"].str[:4], errors="coerce").astype("Int64")
     return df.set_index("id", drop=False)
 
