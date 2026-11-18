@@ -96,3 +96,7 @@ def test_daftar_negara_pemisah_tanpa_spasi():
 def test_kode_negara_yang_pernah_salah_label():
     assert muat_data.nama_negara("cv") == "Tanjung Verde"
     assert muat_data.nama_negara("ga") == "Gabon"
+
+
+def test_daftar_negara_tanpa_duplikat():
+    assert muat_data.daftar_negara("ru; RU;cy; ru") == ["Rusia", "Siprus"]
