@@ -123,7 +123,14 @@ def daftar_negara(teks: str) -> list[str]:
     """'ru; cy' -> ['Rusia', 'Siprus']. Pemisah tanpa spasi ('ru;cy') juga diterima."""
     if not isinstance(teks, str):
         return []
-    return [nama_negara(k) for k in teks.split(";") if k.strip()]
+    # Kode yang sama bisa muncul dua kali ("ru; RU") saat sumber digabung; tampilkan sekali saja.
+    hasil: list[str] = []
+    for k in teks.split(";"):
+        if k.strip():
+            nama = nama_negara(k)
+            if nama not in hasil:
+                hasil.append(nama)
+    return hasil
 
 
 def label_tipe(tipe: str) -> str:
