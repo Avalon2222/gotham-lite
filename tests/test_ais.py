@@ -96,3 +96,8 @@ def test_urai_posisi_koordinat_null_pakai_metadata():
     b = ais.urai_posisi(p)
     assert b is not None
     assert (b["lat"], b["lon"]) == (-6.1, 106.8)
+
+
+def test_pilih_mmsi_float_dan_maks_nol():
+    assert ais.pilih_mmsi(["273126430.0", 572469210.0, "273126430"]) == ["273126430", "572469210"]
+    assert ais.pilih_mmsi(["273126430"], maks=0) == []

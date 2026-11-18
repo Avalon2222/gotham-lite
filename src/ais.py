@@ -117,12 +117,16 @@ def pilih_mmsi(mmsi: list[str], maks: int = MAKS_MMSI) -> list[str]:
     hasil: list[str] = []
     sudah: set[str] = set()
     for m in mmsi:
+        # Batas dicek dulu supaya maks=0 benar-benar kosong.
+        if len(hasil) >= maks:
+            break
         m = str(m).strip()
+        # MMSI dari kolom angka bisa terbaca float ("273126430.0").
+        if m.endswith(".0"):
+            m = m[:-2]
         if len(m) == 9 and m.isdigit() and m not in sudah:
             sudah.add(m)
             hasil.append(m)
-        if len(hasil) >= maks:
-            break
     return hasil
 
 
