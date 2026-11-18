@@ -207,3 +207,14 @@ def test_hitung_per_negara_kode_huruf_besar_tidak_jadi_baris_ganda():
     neg = graf.hitung_per_negara(simpul)
     assert dict(zip(neg["kode"], neg["jumlah"])) == {"ru": 3, "cy": 1}
     assert neg["negara"].is_unique
+
+
+def test_bangun_graf_nama_dan_sanksi_kosong():
+    simpul = pd.DataFrame({"id": ["A", "B", "C"], "tipe": ["Company", "Person", "Person"],
+                           "nama": ["Induk", None, "Budi"], "tersanksi": [1, None, 0]})
+    relasi = pd.DataFrame({"id": ["r1", "r2"], "sumber": ["B", "C"], "tujuan": ["A", "A"],
+                           "tipe": ["Ownership", "Ownership"], "peran": ["", ""], "mulai": ["", ""],
+                           "selesai": ["", ""], "dataset": ["uji", "uji"], "persen": [None, None]})
+    G = graf.bangun_graf(simpul, relasi)
+    assert G.nodes["B"]["nama"] == "B" and G.nodes["B"]["tersanksi"] == 0
+    assert [t["id"] for t in graf.tetangga(G, "A")] == ["B", "C"]

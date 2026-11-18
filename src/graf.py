@@ -36,8 +36,11 @@ def bangun_graf(simpul: pd.DataFrame, relasi: pd.DataFrame) -> nx.MultiDiGraph:
     atribut lain dibaca dari DataFrame ``simpul`` lewat id agar graf tetap ringan.
     """
     G = nx.MultiDiGraph()
+    # Nama kosong diganti id dan status sanksi kosong dianggap 0: int(NaN) gagal, dan nama NaN
+    # membuat pengurutan tetangga (float vs str) melempar TypeError.
     G.add_nodes_from(
-        (i, {"tipe": t, "nama": n, "tersanksi": int(s)})
+        (i, {"tipe": t, "nama": str(i) if pd.isna(n) or not str(n).strip() else str(n),
+             "tersanksi": 0 if pd.isna(s) else int(s)})
         for i, t, n, s in zip(simpul["id"], simpul["tipe"], simpul["nama"], simpul["tersanksi"])
     )
     for r in relasi.itertuples(index=False):
