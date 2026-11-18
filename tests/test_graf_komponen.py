@@ -61,3 +61,9 @@ def test_cari_tahan_nama_dan_alias_kosong(simpul_kecil, H):
     simpul.loc["P1", "alias"] = None
     hasil = graf.cari(simpul, "oligarki", graf.derajat(H))
     assert hasil.index[0] == "P1"
+
+
+def test_teks_relasi_persen_dibulatkan_dua_desimal():
+    assert graf.teks_relasi({"tipe": "Ownership", "persen": 0.199203187250996}) == "memiliki 0.2%"
+    assert graf.teks_relasi({"tipe": "Ownership", "persen": 99.97}) == "memiliki 99.97%"
+    assert graf.teks_relasi({"tipe": "Ownership", "persen": 33.33333}) == "memiliki 33.33%"

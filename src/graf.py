@@ -176,7 +176,8 @@ def teks_relasi(d: dict, maks_peran: int = 60) -> str:
     teks = label_relasi(d.get("tipe", ""))
     persen = d.get("persen")
     if persen is not None and not pd.isna(persen):
-        teks += f" {persen:g}%"
+        # Data OpenSanctions kadang berupa hasil bagi (0.199203187250996); dua desimal sudah cukup.
+        teks += f" {round(float(persen), 2):g}%"
     peran = d.get("peran")
     peran = peran.strip() if isinstance(peran, str) else ""
     if peran and peran.lower() not in teks.lower():
