@@ -76,6 +76,18 @@ def _waktu_meta(meta: dict):
     return None if pd.isna(waktu) else waktu  # teks kosong menghasilkan NaT, bukan error
 
 
+def _mmsi_pesan(pesan: dict) -> str:
+    """MMSI dari MetaData, atau dari UserID di isi pesan bila MetaData tidak membawanya.
+
+    Sama seperti ``urai_posisi``; sebelumnya ``dengarkan`` hanya melihat MetaData sehingga posisi
+    kapal target yang hanya membawa UserID ikut terbuang.
+    """
+    meta = pesan.get("MetaData") or {}
+    isi = (pesan.get("Message") or {}).get(pesan.get("MessageType")) or {}
+    mmsi = meta.get("MMSI") or (isi.get("UserID") if isinstance(isi, dict) else None)
+    return str(mmsi) if mmsi else ""
+
+
 def urai_posisi(pesan: dict) -> dict | None:
     """Satu pesan aisstream -> baris posisi, atau None bila bukan laporan posisi yang valid.
 
@@ -170,8 +182,7 @@ def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DUR
                 if pesan.get("MessageType") == "SubscriptionConfirmation":
                     continue
                 jumlah += 1
-                meta = pesan.get("MetaData") or {}
-                mmsi = str(meta.get("MMSI") or "")
+                mmsi = _mmsi_pesan(pesan)
                 if not mmsi:
                     continue
                 terdengar.add(mmsi)

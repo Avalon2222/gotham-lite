@@ -100,3 +100,13 @@ def test_dengarkan_koneksi_putus_setelah_ada_pesan(pasang_ws):
     df, jumlah, _ = ais.dengarkan("kunci", ["351000001"], durasi=1)
     assert jumlah == 1
     assert len(df) == 1
+
+
+def test_dengarkan_pakai_userid_saat_metadata_tanpa_mmsi(pasang_ws):
+    tanpa_meta = _pesan("351000001", lat=2.5)
+    tanpa_meta["MetaData"].pop("MMSI")
+    pasang_ws([tanpa_meta])
+    df, jumlah, unik = ais.dengarkan("kunci", ["351000001"], durasi=0.2)
+    assert (jumlah, unik) == (1, 1)
+    assert list(df["mmsi"]) == ["351000001"]
+    assert df.loc[0, "lat"] == 2.5
