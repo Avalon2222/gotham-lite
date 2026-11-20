@@ -117,11 +117,19 @@ def urai_posisi(pesan: dict) -> dict | None:
         "nama_ais": str(meta.get("ShipName") or "").replace("@", "").strip(),
         "lat": lat,
         "lon": lon,
-        "sog_knot": None if sog is None or sog >= 102.3 else sog,
-        "cog": None if cog is None or cog >= 360 else cog,
-        "status_nav": STATUS_NAV.get(int(status), f"kode {int(status)}") if status is not None else "",
+        # Di luar rentang standar (SOG 0-102,2; COG 0-359,9; status 0-15) = data rusak, bukan nilai.
+        "sog_knot": None if sog is None or not 0 <= sog < 102.3 else sog,
+        "cog": None if cog is None or not 0 <= cog < 360 else cog,
+        "status_nav": _status_nav(status),
         "waktu_pesan": _waktu_meta(meta),
     }
+
+
+def _status_nav(status: float | None) -> str:
+    """Kode NavigationalStatus -> teks. Kode bukan bilangan bulat 0-15 (mis. inf) dianggap kosong."""
+    if status is None or not (0 <= status <= 15) or status != int(status):
+        return ""
+    return STATUS_NAV.get(int(status), f"kode {int(status)}")
 
 
 def pilih_mmsi(mmsi: list[str], maks: int = MAKS_MMSI) -> list[str]:
