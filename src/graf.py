@@ -201,17 +201,21 @@ def elemen_cytoscape(G: nx.MultiDiGraph, simpul: pd.DataFrame, ids: list[str], t
     nodes = []
     for i in ids:
         s = simpul.loc[i]
-        nama = str(s["nama"])
+        # Nama dan status sanksi diambil dari graf yang sudah dibersihkan bangun_graf:
+        # di DataFrame keduanya bisa NaN (int(NaN) gagal, nama tampil sebagai "nan").
+        nama = G.nodes[i]["nama"]
+        tersanksi = G.nodes[i]["tersanksi"]
+        program = "" if pd.isna(s["program"]) else str(s["program"])
         sisa = tersembunyi.get(i, 0)
         nodes.append({"data": {
             "id": i,
-            "label": label_gaya(s["tipe"], int(s["tersanksi"])),
+            "label": label_gaya(s["tipe"], tersanksi),
             "nama": (nama[:38] + "…") if len(nama) > 40 else nama,
             "nama_lengkap": nama,
             "tipe": label_tipe(s["tipe"]),
             "negara": ", ".join(daftar_negara(s["negara"])),
-            "tersanksi": "ya" if int(s["tersanksi"]) else "tidak",
-            "program": str(s["program"]),
+            "tersanksi": "ya" if tersanksi else "tidak",
+            "program": program,
             "tetangga_tersembunyi": sisa,
             "pusat": "ya" if i == pusat else "tidak",
         }})
