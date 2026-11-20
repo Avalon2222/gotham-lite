@@ -101,3 +101,11 @@ def test_urai_posisi_koordinat_null_pakai_metadata():
 def test_pilih_mmsi_float_dan_maks_nol():
     assert ais.pilih_mmsi(["273126430.0", 572469210.0, "273126430"]) == ["273126430", "572469210"]
     assert ais.pilih_mmsi(["273126430"], maks=0) == []
+
+
+def test_urai_posisi_nilai_di_luar_rentang():
+    baris = ais.urai_posisi(_pesan(sog=-1, cog=-5, status=float("inf")))
+    assert baris["sog_knot"] is None and baris["cog"] is None
+    assert baris["status_nav"] == ""
+    assert ais.urai_posisi(_pesan(status=99))["status_nav"] == ""
+    assert ais.urai_posisi(_pesan(status=14))["status_nav"] == "kode 14"
