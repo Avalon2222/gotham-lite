@@ -218,3 +218,15 @@ def test_bangun_graf_nama_dan_sanksi_kosong():
     G = graf.bangun_graf(simpul, relasi)
     assert G.nodes["B"]["nama"] == "B" and G.nodes["B"]["tersanksi"] == 0
     assert [t["id"] for t in graf.tetangga(G, "A")] == ["B", "C"]
+
+
+def test_elemen_cytoscape_nama_sanksi_program_kosong():
+    simpul = pd.DataFrame({"id": ["A", "B"], "tipe": ["Company", "Person"], "nama": ["Induk", None],
+                           "tersanksi": [1, None], "negara": ["ru", None], "program": ["EU-RUS", None]}).set_index("id", drop=False)
+    relasi = pd.DataFrame({"id": ["r1"], "sumber": ["B"], "tujuan": ["A"], "tipe": ["Ownership"], "peran": [""],
+                           "mulai": [""], "selesai": [""], "dataset": ["uji"], "persen": [None]})
+    G = graf.bangun_graf(simpul, relasi)
+    el = graf.elemen_cytoscape(G, simpul, ["A", "B"])
+    b = next(n["data"] for n in el["nodes"] if n["data"]["id"] == "B")
+    assert b["nama"] == "B" and b["tersanksi"] == "tidak" and b["label"] == "Person_luar"
+    assert b["program"] == ""
