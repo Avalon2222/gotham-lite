@@ -156,6 +156,8 @@ def muat_simpul(path: str | None = None) -> pd.DataFrame:
     df["tersanksi"] = pd.to_numeric(df["tersanksi"], errors="coerce").fillna(0).astype(int)
     df["nama"] = df["nama"].str.strip().replace("", "(tanpa nama)")
     df["tahun"] = pd.to_numeric(df["tanggal"].str[:4], errors="coerce").astype("Int64")
+    # id ganda membuat simpul.loc[id] berupa DataFrame (bukan satu baris) dan elemen graf gagal dibentuk.
+    df = df.drop_duplicates("id", keep="first")
     return df.set_index("id", drop=False)
 
 
