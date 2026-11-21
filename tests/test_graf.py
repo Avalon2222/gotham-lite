@@ -230,3 +230,7 @@ def test_elemen_cytoscape_nama_sanksi_program_kosong():
     b = next(n["data"] for n in el["nodes"] if n["data"]["id"] == "B")
     assert b["nama"] == "B" and b["tersanksi"] == "tidak" and b["label"] == "Person_luar"
     assert b["program"] == ""
+
+
+def test_teks_relasi_persen_tak_hingga_diabaikan():
+    assert graf.teks_relasi({"tipe": "Ownership", "persen": float("inf"), "peran": ""}) == "memiliki"

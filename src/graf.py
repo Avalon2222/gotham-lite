@@ -13,6 +13,7 @@ Dua bentuk graf dipakai:
 
 from __future__ import annotations
 
+import math
 import re
 from collections import Counter, deque
 
@@ -178,7 +179,8 @@ def teks_relasi(d: dict, maks_peran: int = 60) -> str:
     """'memiliki 51%' / 'mengurus · Director' / 'keluarga dari · spouse'. Peran dipotong pada ``maks_peran`` huruf."""
     teks = label_relasi(d.get("tipe", ""))
     persen = d.get("persen")
-    if persen is not None and not pd.isna(persen):
+    # inf/-inf bukan persentase yang bermakna; jangan sampai tampil "inf%".
+    if persen is not None and not pd.isna(persen) and math.isfinite(float(persen)):
         # Data OpenSanctions kadang berupa hasil bagi (0.199203187250996); dua desimal sudah cukup.
         teks += f" {round(float(persen), 2):g}%"
     peran = d.get("peran")
