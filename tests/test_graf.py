@@ -234,3 +234,8 @@ def test_elemen_cytoscape_nama_sanksi_program_kosong():
 
 def test_teks_relasi_persen_tak_hingga_diabaikan():
     assert graf.teks_relasi({"tipe": "Ownership", "persen": float("inf"), "peran": ""}) == "memiliki"
+
+
+def test_batas_negatif_tidak_membalik_potongan(H, simpul_kecil):
+    assert graf.perluas(H, ["P1"], "P1", maks_tambahan=-1) == ["P1"]
+    assert graf.cari(simpul_kecil, "oligarki", maks=-1).empty
