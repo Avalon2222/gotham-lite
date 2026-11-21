@@ -93,7 +93,7 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
     deg = derajat_simpul.reindex(hasil.index).fillna(0) if derajat_simpul is not None else pd.Series(0, index=hasil.index)
     urut = pd.DataFrame({"awal": skor_awal, "sanksi": hasil["tersanksi"], "deg": deg})
     urutan = urut.sort_values(["awal", "sanksi", "deg"], ascending=[False, False, False]).index
-    return hasil.loc[urutan].head(maks)
+    return hasil.loc[urutan].head(max(maks, 0))
 
 
 # ----------------------------------------------------------------------------
@@ -157,7 +157,8 @@ def perluas(H: nx.Graph, terpilih: list[str], id_: str, maks_tambahan: int = 40)
     if id_ not in H:
         return list(terpilih)
     ada = set(terpilih)
-    baru = sorted((v for v in H.neighbors(id_) if v not in ada), key=lambda n: _prioritas(H, n))[:maks_tambahan]
+    # max(..., 0): irisan [:-n] akan mengambil hampir semua tetangga, bukan nol.
+    baru = sorted((v for v in H.neighbors(id_) if v not in ada), key=lambda n: _prioritas(H, n))[:max(maks_tambahan, 0)]
     return list(terpilih) + baru
 
 
