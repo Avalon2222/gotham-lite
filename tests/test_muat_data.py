@@ -111,3 +111,12 @@ def test_muat_simpul_tersanksi_kosong_dan_nama_spasi(tmp_path):
     df = muat_data.muat_simpul(str(tmp_path / "simpul.csv.gz"))
     assert list(df["tersanksi"]) == [0, 1]
     assert list(df["nama"]) == ["(tanpa nama)", "Kapal X"]
+
+
+def test_muat_simpul_id_ganda_hanya_sekali(tmp_path):
+    path = tmp_path / "simpul.csv"
+    pd.DataFrame({"id": ["a", "a", "b"], "tipe": ["Person"] * 3, "nama": ["X", "Y", "Z"],
+                  "tersanksi": ["1", "0", "1"], "tanggal": ["", "", ""]}).to_csv(path, index=False)
+    df = muat_data.muat_simpul(str(path))
+    assert list(df.index) == ["a", "b"]
+    assert df.loc["a", "nama"] == "X"
