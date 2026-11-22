@@ -239,3 +239,8 @@ def test_teks_relasi_persen_tak_hingga_diabaikan():
 def test_batas_negatif_tidak_membalik_potongan(H, simpul_kecil):
     assert graf.perluas(H, ["P1"], "P1", maks_tambahan=-1) == ["P1"]
     assert graf.cari(simpul_kecil, "oligarki", maks=-1).empty
+
+
+def test_jalur_terpendek_maks_nol(H):
+    assert graf.jalur_terpendek(H, "P1", "V1", maks_jalur=0) == []
+    assert graf.jalur_terpendek(H, "P1", "V1", maks_jalur=-2) == []
