@@ -249,3 +249,7 @@ def test_jalur_terpendek_maks_nol(H):
 def test_peringkat_hub_n_negatif(H, simpul_kecil):
     assert graf.peringkat_hub(H, simpul_kecil, n=-1).empty
     assert graf.peringkat_hub(H, simpul_kecil, n=0).empty
+
+
+def test_paparan_n_negatif(H, simpul_kecil):
+    assert graf.paparan(H, simpul_kecil, n=-1).empty
