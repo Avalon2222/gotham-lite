@@ -244,3 +244,8 @@ def test_batas_negatif_tidak_membalik_potongan(H, simpul_kecil):
 def test_jalur_terpendek_maks_nol(H):
     assert graf.jalur_terpendek(H, "P1", "V1", maks_jalur=0) == []
     assert graf.jalur_terpendek(H, "P1", "V1", maks_jalur=-2) == []
+
+
+def test_peringkat_hub_n_negatif(H, simpul_kecil):
+    assert graf.peringkat_hub(H, simpul_kecil, n=-1).empty
+    assert graf.peringkat_hub(H, simpul_kecil, n=0).empty
