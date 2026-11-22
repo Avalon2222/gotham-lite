@@ -359,7 +359,7 @@ def paparan(H: nx.Graph, simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
     if df.empty:
         return df
     df["negara"] = simpul.loc[df["id"], "negara"].values
-    return df.sort_values(["tetangga_tersanksi", "derajat"], ascending=False).head(n).reset_index(drop=True)
+    return df.sort_values(["tetangga_tersanksi", "derajat"], ascending=False).head(max(n, 0)).reset_index(drop=True)
 
 
 def ringkasan(H: nx.Graph, simpul: pd.DataFrame, relasi: pd.DataFrame) -> dict:
