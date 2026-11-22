@@ -238,7 +238,8 @@ def elemen_cytoscape(G: nx.MultiDiGraph, simpul: pd.DataFrame, ids: list[str], t
 # ----------------------------------------------------------------------------
 def jalur_terpendek(H: nx.Graph, a: str, b: str, maks_jalur: int = 3, maks_panjang: int = 6) -> list[list[str]]:
     """Sampai ``maks_jalur`` jalur sederhana terpendek dari a ke b (panjang <= ``maks_panjang`` sisi)."""
-    if a not in H or b not in H or a == b:
+    # maks_jalur <= 0 berarti tidak ada jalur yang diminta; tanpa cek ini satu jalur tetap ikut.
+    if a not in H or b not in H or a == b or maks_jalur <= 0:
         return []
     if not nx.has_path(H, a, b):
         return []
