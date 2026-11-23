@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 import re
-from collections import Counter, deque
+from collections import Counter
 
 import networkx as nx
 import pandas as pd
