@@ -162,7 +162,9 @@ def dengarkan(api_key: str, mmsi_target: list[str] | set[str], durasi: int = DUR
     except ImportError as exc:  # pragma: no cover
         raise AisError("Paket 'websockets' belum terpasang.") from exc
 
-    daftar = pilih_mmsi(list(mmsi_target))
+    # Himpunan tidak punya urutan; diurutkan dulu supaya 200 MMSI yang terpilih (batas server)
+    # selalu sama, bukan bergantung pada urutan hash yang acak tiap proses.
+    daftar = pilih_mmsi(sorted(mmsi_target, key=str) if isinstance(mmsi_target, (set, frozenset)) else list(mmsi_target))
     if not daftar:
         raise AisError("Tidak ada MMSI valid (9 digit) untuk dipantau.")
     target = set(daftar)
