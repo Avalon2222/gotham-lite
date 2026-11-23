@@ -260,3 +260,21 @@ def test_hitung_daftar_seri_urut_abjad_dan_n_negatif():
     kolom = pd.Series(["; ".join(kode), "; ".join(kode[::-1])])
     assert [k for k, _ in graf._hitung_daftar(kolom, 5)] == kode[:5]
     assert graf._hitung_daftar(kolom, -1) == []
+
+
+def test_peringkat_hub_derajat_seri_urut_nama():
+    import networkx as nx
+
+    H = nx.Graph()
+    simpul = {}
+    for i in range(60):
+        pusat = f"S{i:02d}"
+        simpul[pusat] = {"nama": f"Nama {i:02d}", "tipe": "Company", "negara": "ru", "tersanksi": 0, "program": ""}
+        for k in range(i % 3 + 1):
+            daun = f"D{i:02d}{k}"
+            simpul[daun] = {"nama": f"Daun {i:02d}{k}", "tipe": "Person", "negara": "ru", "tersanksi": 0, "program": ""}
+            H.add_edge(pusat, daun)
+    df = pd.DataFrame.from_dict(simpul, orient="index")
+    hub = graf.peringkat_hub(H, df, tipe="Company", n=20)
+    assert (hub["derajat"] == 3).all()
+    assert hub["nama"].tolist() == sorted(hub["nama"])

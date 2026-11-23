@@ -340,8 +340,10 @@ def peringkat_hub(H: nx.Graph, simpul: pd.DataFrame, tipe: str | None = None, n:
         df = df[df["tipe"] == tipe]
     if hanya_tersanksi is not None:
         df = df[df["tersanksi"] == int(hanya_tersanksi)]
-    # head(-n) membuang n baris terakhir, bukan mengembalikan nol baris.
-    return df.sort_values("derajat", ascending=False).head(max(n, 0))
+    # head(-n) membuang n baris terakhir, bukan mengembalikan nol baris. Derajat seri diurutkan
+    # menurut nama supaya daftar hub tidak berganti urutan tiap kali dihitung.
+    df = df.sort_values(["derajat", "nama"], ascending=[False, True], kind="mergesort")
+    return df.head(max(n, 0))
 
 
 def paparan(H: nx.Graph, simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
