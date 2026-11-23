@@ -16,6 +16,7 @@ pesan per detik dan server memutus klien yang tidak sanggup mengikuti. Kapal yan
 from __future__ import annotations
 
 import json
+import math
 import os
 import time
 from datetime import datetime, timezone
@@ -61,7 +62,7 @@ def _angka(v, default=None):
         if v is None:
             return default
         f = float(v)
-        return default if f != f else f
+        return default if math.isnan(f) else f
     except (TypeError, ValueError):
         return default
 
