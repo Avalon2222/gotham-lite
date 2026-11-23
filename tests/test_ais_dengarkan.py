@@ -110,3 +110,11 @@ def test_dengarkan_pakai_userid_saat_metadata_tanpa_mmsi(pasang_ws):
     assert (jumlah, unik) == (1, 1)
     assert list(df["mmsi"]) == ["351000001"]
     assert df.loc[0, "lat"] == 2.5
+
+
+def test_dengarkan_himpunan_mmsi_dipotong_secara_tetap(pasang_ws):
+    ws = pasang_ws([{"MessageType": "SubscriptionConfirmation"}])
+    target = {f"{351000000 + i}" for i in range(250)}
+    ais.dengarkan("kunci", target, durasi=0.1)
+    dikirim = ws.terkirim[0]["FiltersShipMMSI"]
+    assert dikirim == sorted(target)[:ais.MAKS_MMSI]
