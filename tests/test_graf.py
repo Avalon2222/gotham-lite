@@ -253,3 +253,10 @@ def test_peringkat_hub_n_negatif(H, simpul_kecil):
 
 def test_paparan_n_negatif(H, simpul_kecil):
     assert graf.paparan(H, simpul_kecil, n=-1).empty
+
+
+def test_hitung_daftar_seri_urut_abjad_dan_n_negatif():
+    kode = [f"k{i:02d}" for i in range(30)]
+    kolom = pd.Series(["; ".join(kode), "; ".join(kode[::-1])])
+    assert [k for k, _ in graf._hitung_daftar(kolom, 5)] == kode[:5]
+    assert graf._hitung_daftar(kolom, -1) == []

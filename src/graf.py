@@ -390,7 +390,9 @@ def _hitung_daftar(kolom: pd.Series, n: int, huruf_kecil: bool = False) -> list[
     for teks in kolom.dropna():
         item = (k.strip() for k in str(teks).split(";"))
         c.update({k.lower() if huruf_kecil else k for k in item if k})
-    return c.most_common(n)
+    # most_common memutus seri menurut urutan sisip, yang di sini berasal dari iterasi set (acak per
+    # proses karena hash string). Urutkan eksplisit: jumlah menurun, lalu abjad.
+    return sorted(c.items(), key=lambda kv: (-kv[1], kv[0]))[:max(n, 0)]
 
 
 def hitung_per_negara(simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
