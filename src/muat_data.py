@@ -159,7 +159,11 @@ def muat_simpul(path: str | None = None) -> pd.DataFrame:
     path = path or os.path.join(DIR_DATA, "simpul.csv.gz")
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
     # Sel kosong ("" karena keep_default_na=False) dianggap tidak tersanksi, bukan ValueError.
-    df["tersanksi"] = pd.to_numeric(df["tersanksi"], errors="coerce").fillna(0).astype(int)
+    # Isinya dirapikan jadi 0/1: "True" dari ekspor lain dulu terbaca 0 (tidak tersanksi), "inf" membuat
+    # astype(int) gagal, dan "1.0" atau "2" tidak ikut dihitung di bagian yang memakai tersanksi == 1.
+    teks = df["tersanksi"].str.strip().str.lower()
+    angka = pd.to_numeric(teks, errors="coerce").fillna(0)
+    df["tersanksi"] = ((angka != 0) | teks.isin(["true", "ya", "yes"])).astype(int)
     df["nama"] = df["nama"].str.strip().replace("", "(tanpa nama)")
     df["tahun"] = pd.to_numeric(df["tanggal"].str[:4], errors="coerce").astype("Int64")
     # id ganda membuat simpul.loc[id] berupa DataFrame (bukan satu baris) dan elemen graf gagal dibentuk.
