@@ -103,6 +103,12 @@ NAMA_NEGARA = {
     "sx": "Sint Maarten", "aw": "Aruba", "st": "São Tomé", "cv": "Tanjung Verde", "gq": "Guinea Khatulistiwa",
     "suhh": "Uni Soviet (lama)", "zz": "Internasional", "xx": "Tidak diketahui", "csxx": "Cekoslowakia (lama)",
     "yucs": "Yugoslavia (lama)", "ddde": "Jerman Timur (lama)",
+    # Kode yang muncul di data OpenSanctions tetapi belum punya nama (dulu tampil sebagai "GY", "UA-DPR").
+    "gy": "Guyana", "sr": "Suriname", "sz": "Eswatini", "na": "Namibia", "bw": "Botswana", "bi": "Burundi",
+    "pr": "Puerto Riko", "io": "Wilayah Samudra Hindia Britania", "zr": "Zaire (lama)",
+    "cshh": "Cekoslowakia (lama)", "dd": "Jerman Timur (lama)", "gb-sct": "Skotlandia",
+    "ua-cri": "Krimea", "ua-dpr": "Donetsk (wilayah pendudukan)", "ua-lpr": "Luhansk (wilayah pendudukan)",
+    "md-pmr": "Transnistria", "x-so": "Somaliland",
 }
 
 # Bendera kemudahan (flag of convenience) menurut daftar ITF; dipakai di tab armada.

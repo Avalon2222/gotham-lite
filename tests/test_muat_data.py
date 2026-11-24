@@ -120,3 +120,12 @@ def test_muat_simpul_id_ganda_hanya_sekali(tmp_path):
     df = muat_data.muat_simpul(str(path))
     assert list(df.index) == ["a", "b"]
     assert df.loc["a", "nama"] == "X"
+
+
+def test_kode_negara_di_data_punya_nama():
+    simpul = muat_data.muat_simpul()
+    kode = {k.strip().lower() for teks in simpul["negara"] for k in teks.split(";") if k.strip()}
+    kode |= {k.strip().lower() for k in simpul["bendera"] if k.strip()}
+    # Kode "ip" belum jelas artinya di OpenSanctions, jadi dibiarkan tampil apa adanya.
+    tanpa_nama = sorted(k for k in kode - {"ip"} if muat_data.nama_negara(k) == k.upper())
+    assert tanpa_nama == []
