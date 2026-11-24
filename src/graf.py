@@ -312,7 +312,9 @@ def tabel_kapal(G: nx.MultiDiGraph, simpul: pd.DataFrame) -> pd.DataFrame:
     for i in kapal.index:
         atas = [G.nodes[u]["nama"] for u, _, d in G.in_edges(i, data=True)
                 if d["tipe"] in ("Ownership", "Directorship", "Representation", "UnknownLink")]
-        pemilik.append("; ".join(dict.fromkeys(atas))[:120])
+        teks = "; ".join(dict.fromkeys(atas))
+        # Dipotong 120 huruf; beri tanda "…" supaya nama yang terpotong tidak terbaca sebagai nama utuh.
+        pemilik.append(teks if len(teks) <= 120 else teks[:119] + "…")
         jumlah.append(G.degree(i) if i in G else 0)
     kapal["pemilik"] = pemilik
     kapal["jumlah_relasi"] = jumlah

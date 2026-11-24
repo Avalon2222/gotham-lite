@@ -285,3 +285,17 @@ def test_elemen_cytoscape_id_ganda_sekali_saja(G, simpul_kecil, H):
     el = graf.elemen_cytoscape(G, simpul_kecil, ids + ids[:2])
     nodes = [n["data"]["id"] for n in el["nodes"]]
     assert len(nodes) == len(set(nodes)) == len(ids)
+
+
+def test_tabel_kapal_pemilik_panjang_diberi_elipsis():
+    simpul = pd.DataFrame({
+        "id": ["V", "A", "B"], "tipe": ["Vessel", "Company", "Company"],
+        "nama": ["Kapal", "A" * 80, "B" * 80], "tersanksi": [1, 0, 0],
+        "negara": ["", "", ""], "program": ["", "", ""], "bendera": ["pa", "", ""],
+    }).set_index("id", drop=False)
+    relasi = pd.DataFrame({"id": ["r1", "r2"], "sumber": ["A", "B"], "tujuan": ["V", "V"],
+                           "tipe": ["Ownership", "Ownership"], "peran": ["", ""], "mulai": ["", ""],
+                           "selesai": ["", ""], "dataset": ["", ""], "persen": [None, None]})
+    G = graf.bangun_graf(simpul, relasi)
+    pemilik = graf.tabel_kapal(G, simpul).set_index("id").loc["V", "pemilik"]
+    assert len(pemilik) == 120 and pemilik.endswith("…")
