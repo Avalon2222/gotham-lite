@@ -113,6 +113,15 @@ def test_muat_simpul_tersanksi_kosong_dan_nama_spasi(tmp_path):
     assert list(df["nama"]) == ["(tanpa nama)", "Kapal X"]
 
 
+def test_muat_simpul_tersanksi_jadi_nol_satu(tmp_path):
+    path = tmp_path / "simpul.csv"
+    nilai = ["True", "false", "1.0", "2", "inf", "0", " ya "]
+    pd.DataFrame({"id": list("abcdefg"), "tipe": ["Person"] * 7, "nama": list("ABCDEFG"),
+                  "tersanksi": nilai, "tanggal": [""] * 7}).to_csv(path, index=False)
+    df = muat_data.muat_simpul(str(path))
+    assert list(df["tersanksi"]) == [1, 0, 1, 1, 1, 0, 1]
+
+
 def test_muat_simpul_id_ganda_hanya_sekali(tmp_path):
     path = tmp_path / "simpul.csv"
     pd.DataFrame({"id": ["a", "a", "b"], "tipe": ["Person"] * 3, "nama": ["X", "Y", "Z"],
