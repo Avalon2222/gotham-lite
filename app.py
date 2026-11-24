@@ -687,10 +687,7 @@ with tab_kapal:
                 fig = go.Figure(go.Scattergeo(
                     lat=df_pos["lat"], lon=df_pos["lon"], mode="markers",
                     marker=dict(size=10, color=MERAH, line=dict(width=1, color="#ffffff")),
-                    text=[f"{n or a}<br>Bendera: {nama_negara(b)}<br>IMO {i} · MMSI {m}<br>{s}<br>{sog} knot"
-                          for n, a, b, i, m, s, sog in zip(df_pos["nama"].fillna(""), df_pos["nama_ais"], df_pos["bendera"].fillna(""),
-                                                           df_pos["imo"].fillna(""), df_pos["mmsi"], df_pos["status_nav"],
-                                                           df_pos["sog_knot"].fillna(0).round(1))],
+                    text=[ais.teks_hover(b, nama_negara) for _, b in df_pos.iterrows()],
                     hovertemplate="%{text}<extra></extra>",
                 ))
                 fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="#243044",
