@@ -278,3 +278,10 @@ def test_peringkat_hub_derajat_seri_urut_nama():
     hub = graf.peringkat_hub(H, df, tipe="Company", n=20)
     assert (hub["derajat"] == 3).all()
     assert hub["nama"].tolist() == sorted(hub["nama"])
+
+
+def test_elemen_cytoscape_id_ganda_sekali_saja(G, simpul_kecil, H):
+    ids = graf.ego(H, "P1", 1)
+    el = graf.elemen_cytoscape(G, simpul_kecil, ids + ids[:2])
+    nodes = [n["data"]["id"] for n in el["nodes"]]
+    assert len(nodes) == len(set(nodes)) == len(ids)

@@ -198,7 +198,8 @@ def elemen_cytoscape(G: nx.MultiDiGraph, simpul: pd.DataFrame, ids: list[str], t
     Hanya sisi yang kedua ujungnya ada di ``ids`` yang dibawa. Sisi ganda antara pasangan yang sama
     tetap ditampilkan satu per satu (Cytoscape menggambarnya melengkung).
     """
-    ids = [i for i in ids if i in G]
+    # id ganda (misalnya simpul yang sudah tampil lalu diperluas lagi) membuat Cytoscape menolak elemen.
+    ids = [i for i in dict.fromkeys(ids) if i in G]
     ada = set(ids)
     tersembunyi = tersembunyi or {}
     nodes = []
