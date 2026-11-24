@@ -233,5 +233,30 @@ def gabung_dengan_kapal(df_posisi: pd.DataFrame, kapal: pd.DataFrame) -> pd.Data
     return df_posisi.merge(k, on="mmsi", how="left")
 
 
+def _kosong(v) -> bool:
+    return v is None or (not isinstance(v, str) and pd.isna(v)) or (isinstance(v, str) and not v.strip())
+
+
+def teks_hover(baris: pd.Series | dict, nama_negara=lambda k: k) -> str:
+    """Teks tooltip satu kapal di peta Live AIS.
+
+    Kecepatan yang tidak dilaporkan (SOG 102,3 sudah jadi None) dulu tampil "0 knot", seolah kapal
+    diam. Baris yang isinya kosong (IMO, status) dilewati supaya tidak ada "IMO  · MMSI" atau baris kosong.
+    """
+    nama = baris.get("nama")
+    nama = baris.get("nama_ais") if _kosong(nama) else nama
+    bagian = [str(nama) if not _kosong(nama) else f"MMSI {baris.get('mmsi')}"]
+    bendera = baris.get("bendera")
+    if not _kosong(bendera):
+        bagian.append(f"Bendera: {nama_negara(bendera)}")
+    nomor = [f"IMO {baris.get('imo')}"] if not _kosong(baris.get("imo")) else []
+    bagian.append(" · ".join(nomor + [f"MMSI {baris.get('mmsi')}"]))
+    if not _kosong(baris.get("status_nav")):
+        bagian.append(str(baris.get("status_nav")))
+    sog = _angka(baris.get("sog_knot"))
+    bagian.append(f"{round(sog, 1):g} knot" if sog is not None and math.isfinite(sog) else "Kecepatan tidak dilaporkan")
+    return "<br>".join(bagian)
+
+
 def sekarang_utc() -> datetime:
     return datetime.now(timezone.utc)

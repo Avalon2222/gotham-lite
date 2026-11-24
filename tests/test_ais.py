@@ -109,3 +109,18 @@ def test_urai_posisi_nilai_di_luar_rentang():
     assert baris["status_nav"] == ""
     assert ais.urai_posisi(_pesan(status=99))["status_nav"] == ""
     assert ais.urai_posisi(_pesan(status=14))["status_nav"] == "kode 14"
+
+
+def test_teks_hover_kecepatan_kosong_bukan_nol():
+    baris = {"nama": "Tanker Alpha", "nama_ais": "ALPHA", "bendera": "pa", "imo": "9187629", "mmsi": "351000001",
+             "status_nav": "berlabuh jangkar", "sog_knot": None}
+    teks = ais.teks_hover(baris, lambda k: {"pa": "Panama"}[k])
+    assert teks.split("<br>") == ["Tanker Alpha", "Bendera: Panama", "IMO 9187629 · MMSI 351000001",
+                                  "berlabuh jangkar", "Kecepatan tidak dilaporkan"]
+    assert "0 knot" not in teks
+
+
+def test_teks_hover_tanpa_imo_status_dan_nama_daftar():
+    baris = pd.Series({"nama": float("nan"), "nama_ais": "GHOST", "bendera": float("nan"), "imo": float("nan"),
+                       "mmsi": "273000002", "status_nav": "", "sog_knot": 12.345})
+    assert ais.teks_hover(baris).split("<br>") == ["GHOST", "MMSI 273000002", "12.3 knot"]
