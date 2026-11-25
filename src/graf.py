@@ -181,9 +181,14 @@ def teks_relasi(d: dict, maks_peran: int = 60) -> str:
     teks = label_relasi(d.get("tipe", ""))
     persen = d.get("persen")
     # inf/-inf bukan persentase yang bermakna; jangan sampai tampil "inf%".
-    if persen is not None and not pd.isna(persen) and math.isfinite(float(persen)):
+    # Persen berupa teks ("51" atau "n/a" dari CSV mentah) dibaca sebagai angka; yang bukan angka dilewati.
+    try:
+        persen = float(persen) if persen is not None and not pd.isna(persen) and str(persen).strip() else None
+    except (TypeError, ValueError):
+        persen = None
+    if persen is not None and math.isfinite(persen):
         # Data OpenSanctions kadang berupa hasil bagi (0.199203187250996); dua desimal sudah cukup.
-        teks += f" {round(float(persen), 2):g}%"
+        teks += f" {round(persen, 2):g}%"
     peran = d.get("peran")
     peran = peran.strip() if isinstance(peran, str) else ""
     if peran and peran.lower() not in teks.lower():

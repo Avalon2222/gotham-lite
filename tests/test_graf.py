@@ -315,3 +315,9 @@ def test_paparan_seri_urut_nama():
     df = pd.DataFrame.from_dict(simpul, orient="index")
     p = graf.paparan(H, df)
     assert p["nama"].tolist() == ["Alfa", "Bravo", "Mike", "Zeta"]
+
+
+def test_teks_relasi_persen_berupa_teks():
+    assert graf.teks_relasi({"tipe": "Ownership", "persen": "51"}).endswith(" 51%")
+    assert "%" not in graf.teks_relasi({"tipe": "Ownership", "persen": "n/a"})
+    assert "%" not in graf.teks_relasi({"tipe": "Ownership", "persen": ""})
