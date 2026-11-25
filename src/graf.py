@@ -364,7 +364,9 @@ def paparan(H: nx.Graph, simpul: pd.DataFrame, n: int = 20) -> pd.DataFrame:
     if df.empty:
         return df
     df["negara"] = simpul.loc[df["id"], "negara"].values
-    return df.sort_values(["tetangga_tersanksi", "derajat"], ascending=False).head(max(n, 0)).reset_index(drop=True)
+    # Seri diurutkan menurut nama (seperti peringkat_hub), bukan menurut urutan simpul di graf.
+    df = df.sort_values(["tetangga_tersanksi", "derajat", "nama"], ascending=[False, False, True], kind="mergesort")
+    return df.head(max(n, 0)).reset_index(drop=True)
 
 
 def ringkasan(H: nx.Graph, simpul: pd.DataFrame, relasi: pd.DataFrame) -> dict:

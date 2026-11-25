@@ -299,3 +299,19 @@ def test_tabel_kapal_pemilik_panjang_diberi_elipsis():
     G = graf.bangun_graf(simpul, relasi)
     pemilik = graf.tabel_kapal(G, simpul).set_index("id").loc["V", "pemilik"]
     assert len(pemilik) == 120 and pemilik.endswith("…")
+
+
+def test_paparan_seri_urut_nama():
+    import networkx as nx
+
+    H = nx.Graph()
+    simpul = {"X": {"nama": "Pusat", "tipe": "Company", "negara": "ru", "tersanksi": 1}}
+    for nama in ["Zeta", "Alfa", "Mike", "Bravo"]:
+        simpul[nama] = {"nama": nama, "tipe": "Person", "negara": "ru", "tersanksi": 0}
+    for v, d in simpul.items():
+        H.add_node(v, **d)
+    for nama in ["Zeta", "Alfa", "Mike", "Bravo"]:
+        H.add_edge("X", nama)
+    df = pd.DataFrame.from_dict(simpul, orient="index")
+    p = graf.paparan(H, df)
+    assert p["nama"].tolist() == ["Alfa", "Bravo", "Mike", "Zeta"]
