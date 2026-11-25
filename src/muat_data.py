@@ -125,8 +125,11 @@ def nama_negara(kode: str) -> str:
     return NAMA_NEGARA.get(kode, kode.upper())
 
 
-def daftar_negara(teks: str) -> list[str]:
-    """'ru; cy' -> ['Rusia', 'Siprus']. Pemisah tanpa spasi ('ru;cy') juga diterima."""
+def daftar_negara(teks: str, maks: int | None = None) -> list[str]:
+    """'ru; cy' -> ['Rusia', 'Siprus']. Pemisah tanpa spasi ('ru;cy') juga diterima.
+
+    ``maks`` membatasi jumlah negara yang dikembalikan (setelah kode ganda dibuang).
+    """
     if not isinstance(teks, str):
         return []
     # Kode yang sama bisa muncul dua kali ("ru; RU") saat sumber digabung; tampilkan sekali saja.
@@ -136,7 +139,7 @@ def daftar_negara(teks: str) -> list[str]:
             nama = nama_negara(k)
             if nama not in hasil:
                 hasil.append(nama)
-    return hasil
+    return hasil if maks is None else hasil[:max(maks, 0)]
 
 
 def label_tipe(tipe: str) -> str:

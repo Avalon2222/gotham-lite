@@ -187,7 +187,7 @@ def cari_id(nama: str, tipe: str | None = None) -> str | None:
 
 def label_hasil(id_: str) -> str:
     s = simpul.loc[id_]
-    negara = ", ".join(nama_negara(k) for k in str(s["negara"]).split("; ")[:2] if k)
+    negara = ", ".join(muat_data.daftar_negara(s["negara"], maks=2))
     tanda = "●" if s["tersanksi"] else "○"
     ekstra = f" · {negara}" if negara else ""
     return f"{tanda} {s['nama'][:48]} · {label_tipe(s['tipe'])}{ekstra} · {int(DERAJAT.get(id_, 0))} relasi"
@@ -381,7 +381,7 @@ with tab_explorer:
             baris = []
             if s["alias"]:
                 baris.append(("Alias", s["alias"]))
-            negara = ", ".join(nama_negara(k) for k in str(s["negara"]).split("; ") if k)
+            negara = ", ".join(muat_data.daftar_negara(s["negara"]))
             if negara:
                 baris.append(("Negara", negara))
             if s["tipe"] == "Person" and s["tanggal"]:
@@ -773,7 +773,7 @@ with tab_stat:
     for kolom, tipe, judul in ((h1, "Person", "Orang"), (h2, "Company", "Perusahaan"), (h3, "Vessel", "Kapal")):
         with kolom:
             hub = graf.peringkat_hub(H, simpul, tipe, 10)
-            hub["Negara"] = hub["negara"].map(lambda t: ", ".join(nama_negara(k) for k in str(t).split("; ")[:2] if k))
+            hub["Negara"] = hub["negara"].map(lambda t: ", ".join(muat_data.daftar_negara(t, maks=2)))
             hub["Nama"] = ["● " + n if t else "○ " + n for n, t in zip(hub["nama"], hub["tersanksi"])]
             st.markdown(f"**{judul}**")
             st.dataframe(hub[["Nama", "Negara", "derajat"]].rename(columns={"derajat": "Relasi"}), hide_index=True,
@@ -786,7 +786,7 @@ with tab_stat:
     pap = paparan_cache(20)
     if not pap.empty:
         pap["Tipe"] = pap["tipe"].map(label_tipe)
-        pap["Negara"] = pap["negara"].map(lambda t: ", ".join(nama_negara(k) for k in str(t).split("; ")[:2] if k))
+        pap["Negara"] = pap["negara"].map(lambda t: ", ".join(muat_data.daftar_negara(t, maks=2)))
         st.dataframe(pap[["nama", "Tipe", "Negara", "tetangga_tersanksi", "derajat"]]
                      .rename(columns={"nama": "Entitas", "tetangga_tersanksi": "Tetangga tersanksi", "derajat": "Total relasi"}),
                      hide_index=True, use_container_width=True, height=380)

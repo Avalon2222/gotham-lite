@@ -138,3 +138,10 @@ def test_kode_negara_di_data_punya_nama():
     # Kode "ip" belum jelas artinya di OpenSanctions, jadi dibiarkan tampil apa adanya.
     tanpa_nama = sorted(k for k in kode - {"ip"} if muat_data.nama_negara(k) == k.upper())
     assert tanpa_nama == []
+
+
+def test_daftar_negara_dibatasi_setelah_kode_ganda_dibuang():
+    # Dulu app memotong "ru; RU; cy" jadi dua kode pertama ("ru", "RU") dan menampilkan "Rusia, Rusia".
+    assert muat_data.daftar_negara("ru; RU; cy", maks=2) == ["Rusia", "Siprus"]
+    assert muat_data.daftar_negara("ru;cy;ir", maks=0) == []
+    assert muat_data.daftar_negara("ru;cy;ir", maks=-1) == []
