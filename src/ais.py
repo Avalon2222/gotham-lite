@@ -86,7 +86,17 @@ def _mmsi_pesan(pesan: dict) -> str:
     meta = pesan.get("MetaData") or {}
     isi = (pesan.get("Message") or {}).get(pesan.get("MessageType")) or {}
     mmsi = meta.get("MMSI") or (isi.get("UserID") if isinstance(isi, dict) else None)
-    return str(mmsi) if mmsi else ""
+    return _teks_mmsi(mmsi)
+
+
+def _teks_mmsi(mmsi) -> str:
+    """MMSI sebagai teks digit. Float 273126430.0 dulu jadi "273126430.0" dan tidak pernah cocok dengan target."""
+    if not mmsi:
+        return ""
+    if isinstance(mmsi, float) and mmsi.is_integer():
+        return str(int(mmsi))
+    teks = str(mmsi).strip()
+    return teks[:-2] if teks.endswith(".0") and teks[:-2].isdigit() else teks
 
 
 def urai_posisi(pesan: dict) -> dict | None:
@@ -100,7 +110,7 @@ def urai_posisi(pesan: dict) -> dict | None:
         return None
     meta = pesan.get("MetaData") or {}
     isi = (pesan.get("Message") or {}).get(tipe) or {}
-    mmsi = meta.get("MMSI") or isi.get("UserID")
+    mmsi = _teks_mmsi(meta.get("MMSI") or isi.get("UserID"))
     if not mmsi:
         return None
     # Pesan bisa membawa "Latitude": null; saat itu pakai koordinat dari MetaData.
@@ -114,7 +124,7 @@ def urai_posisi(pesan: dict) -> dict | None:
     cog = _angka(isi.get("Cog"))
     status = _angka(isi.get("NavigationalStatus")) if tipe == "PositionReport" else None
     return {
-        "mmsi": str(mmsi),
+        "mmsi": mmsi,
         "nama_ais": str(meta.get("ShipName") or "").replace("@", "").strip(),
         "lat": lat,
         "lon": lon,

@@ -124,3 +124,12 @@ def test_teks_hover_tanpa_imo_status_dan_nama_daftar():
     baris = pd.Series({"nama": float("nan"), "nama_ais": "GHOST", "bendera": float("nan"), "imo": float("nan"),
                        "mmsi": "273000002", "status_nav": "", "sog_knot": 12.345})
     assert ais.teks_hover(baris).split("<br>") == ["GHOST", "MMSI 273000002", "12.3 knot"]
+
+
+def test_mmsi_float_dirapikan_supaya_cocok_dengan_target():
+    p = _pesan()
+    p["MetaData"]["MMSI"] = 351000001.0
+    assert ais._mmsi_pesan(p) == "351000001"
+    assert ais.urai_posisi(p)["mmsi"] == "351000001"
+    p["MetaData"]["MMSI"] = "351000001.0"
+    assert ais.urai_posisi(p)["mmsi"] == "351000001"
