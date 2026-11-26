@@ -321,3 +321,12 @@ def test_teks_relasi_persen_berupa_teks():
     assert graf.teks_relasi({"tipe": "Ownership", "persen": "51"}).endswith(" 51%")
     assert "%" not in graf.teks_relasi({"tipe": "Ownership", "persen": "n/a"})
     assert "%" not in graf.teks_relasi({"tipe": "Ownership", "persen": ""})
+
+
+def test_cari_imo_dengan_nol_di_depan(simpul_kecil, H):
+    deg = graf.derajat(H)
+    simpul = simpul_kecil.copy()
+    simpul.loc["V1", "imo"] = "0004034"
+    assert graf.cari(simpul, "IMO 4034", deg).index.tolist() == ["V1"]
+    assert graf.cari(simpul, "0004034", deg).index.tolist() == ["V1"]
+    assert graf.cari(simpul, "00", deg).empty
