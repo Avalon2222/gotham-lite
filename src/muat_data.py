@@ -177,7 +177,9 @@ def muat_simpul(path: str | None = None) -> pd.DataFrame:
 def muat_relasi(path: str | None = None) -> pd.DataFrame:
     path = path or os.path.join(DIR_DATA, "relasi.csv.gz")
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
-    df["persen"] = pd.to_numeric(df["persen"], errors="coerce")
+    # Persen dari sumber lain kadang ditulis "51%" atau "12,5"; dulu keduanya hilang jadi kosong.
+    teks = df["persen"].str.strip().str.rstrip("%").str.strip().str.replace(",", ".", regex=False)
+    df["persen"] = pd.to_numeric(teks, errors="coerce")
     return df
 
 

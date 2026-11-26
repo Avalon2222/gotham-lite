@@ -145,3 +145,12 @@ def test_daftar_negara_dibatasi_setelah_kode_ganda_dibuang():
     assert muat_data.daftar_negara("ru; RU; cy", maks=2) == ["Rusia", "Siprus"]
     assert muat_data.daftar_negara("ru;cy;ir", maks=0) == []
     assert muat_data.daftar_negara("ru;cy;ir", maks=-1) == []
+
+
+def test_muat_relasi_persen_dengan_tanda_persen_dan_koma(tmp_path):
+    relasi = pd.DataFrame({"id": ["r1", "r2", "r3", "r4"], "sumber": "a", "tujuan": "b", "tipe": "Ownership",
+                           "peran": "", "mulai": "", "selesai": "", "dataset": "", "persen": ["51%", "12,5", " 30 % ", "n/a"]})
+    relasi.to_csv(tmp_path / "relasi.csv.gz", index=False, compression="gzip")
+    r = muat_data.muat_relasi(str(tmp_path / "relasi.csv.gz"))
+    assert r["persen"].tolist()[:3] == [51.0, 12.5, 30.0]
+    assert pd.isna(r["persen"].iloc[3])
