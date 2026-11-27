@@ -169,6 +169,9 @@ def muat_simpul(path: str | None = None) -> pd.DataFrame:
     df["tersanksi"] = ((angka != 0) | teks.isin(["true", "ya", "yes"])).astype(int)
     df["nama"] = df["nama"].str.strip().replace("", "(tanpa nama)")
     df["tahun"] = pd.to_numeric(df["tanggal"].str[:4], errors="coerce").astype("Int64")
+    # id berspasi tidak cocok dengan sumber/tujuan relasi, dan id kosong bukan entitas.
+    df["id"] = df["id"].str.strip()
+    df = df[df["id"] != ""]
     # id ganda membuat simpul.loc[id] berupa DataFrame (bukan satu baris) dan elemen graf gagal dibentuk.
     df = df.drop_duplicates("id", keep="first")
     return df.set_index("id", drop=False)
@@ -180,6 +183,9 @@ def muat_relasi(path: str | None = None) -> pd.DataFrame:
     # Persen dari sumber lain kadang ditulis "51%" atau "12,5"; dulu keduanya hilang jadi kosong.
     teks = df["persen"].str.strip().str.rstrip("%").str.strip().str.replace(",", ".", regex=False)
     df["persen"] = pd.to_numeric(teks, errors="coerce")
+    # Sama seperti id simpul: sumber/tujuan berspasi membuat relasinya diam-diam tidak masuk graf.
+    for kolom in ("sumber", "tujuan"):
+        df[kolom] = df[kolom].str.strip()
     return df
 
 
