@@ -133,3 +133,11 @@ def test_mmsi_float_dirapikan_supaya_cocok_dengan_target():
     assert ais.urai_posisi(p)["mmsi"] == "351000001"
     p["MetaData"]["MMSI"] = "351000001.0"
     assert ais.urai_posisi(p)["mmsi"] == "351000001"
+
+
+def test_gabung_mmsi_kapal_berspasi_atau_desimal():
+    df = ais.ke_dataframe({"351000001": ais.urai_posisi(_pesan())})
+    kolom = {"bendera": "pa", "imo": "", "program": "", "jenis_kapal": ""}
+    for mmsi in [" 351000001 ", "351000001.0"]:
+        kapal = pd.DataFrame([{"id": "V1", "mmsi": mmsi, "nama": "Tanker Alpha", **kolom}])
+        assert ais.gabung_dengan_kapal(df, kapal).loc[0, "nama"] == "Tanker Alpha"

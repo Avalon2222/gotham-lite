@@ -238,8 +238,10 @@ def gabung_dengan_kapal(df_posisi: pd.DataFrame, kapal: pd.DataFrame) -> pd.Data
     """Sandingkan posisi AIS dengan data kapal tersanksi (nama di daftar, bendera, IMO, program)."""
     if df_posisi.empty:
         return df_posisi
-    k = kapal[kapal["mmsi"] != ""][["mmsi", "nama", "bendera", "imo", "program", "jenis_kapal", "id"]]
-    k = k.drop_duplicates("mmsi")
+    k = kapal[["mmsi", "nama", "bendera", "imo", "program", "jenis_kapal", "id"]].copy()
+    # MMSI di data sanksi kadang berspasi atau tertulis "351000001.0"; samakan dengan MMSI dari AIS.
+    k["mmsi"] = k["mmsi"].map(_teks_mmsi)
+    k = k[k["mmsi"] != ""].drop_duplicates("mmsi")
     return df_posisi.merge(k, on="mmsi", how="left")
 
 
