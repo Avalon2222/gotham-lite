@@ -86,7 +86,9 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
         # IMO di data kadang ditulis dengan nol di depan ("0004034"); "IMO 4034" harus tetap ketemu.
         tanpa_nol = nomor.lstrip("0") or "0"
         imo = simpul["imo"].fillna("").astype(str).str.strip().str.lstrip("0")
-        cocok |= ((imo == tanpa_nol) & (simpul["imo"].fillna("") != "")) | (simpul["mmsi"] == nomor)
+        # MMSI di data bisa berspasi atau tertulis "351000001.0" (CSV yang pernah dibuka sebagai angka).
+        mmsi = simpul["mmsi"].fillna("").astype(str).str.strip().str.replace(r"\.0$", "", regex=True)
+        cocok |= ((imo == tanpa_nol) & (simpul["imo"].fillna("") != "")) | ((mmsi == nomor) & (mmsi != ""))
     hasil = simpul[cocok]
     if tipe:
         hasil = hasil[hasil["tipe"] == tipe]

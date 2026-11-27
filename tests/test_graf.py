@@ -330,3 +330,10 @@ def test_cari_imo_dengan_nol_di_depan(simpul_kecil, H):
     assert graf.cari(simpul, "IMO 4034", deg).index.tolist() == ["V1"]
     assert graf.cari(simpul, "0004034", deg).index.tolist() == ["V1"]
     assert graf.cari(simpul, "00", deg).empty
+
+
+def test_cari_mmsi_berspasi_atau_desimal(simpul_kecil, H):
+    deg = graf.derajat(H)
+    simpul = simpul_kecil.copy()
+    simpul.loc["V1", "mmsi"] = " 351000001.0"
+    assert graf.cari(simpul, "MMSI 351000001", deg).index.tolist() == ["V1"]
