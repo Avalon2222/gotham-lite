@@ -154,3 +154,18 @@ def test_muat_relasi_persen_dengan_tanda_persen_dan_koma(tmp_path):
     r = muat_data.muat_relasi(str(tmp_path / "relasi.csv.gz"))
     assert r["persen"].tolist()[:3] == [51.0, 12.5, 30.0]
     assert pd.isna(r["persen"].iloc[3])
+
+
+def test_id_simpul_dan_relasi_berspasi_dirapikan(tmp_path):
+    dasar = {"tipe": "Person", "nama": "X", "alias": "", "negara": "", "topik": "", "dataset": "uji", "program": "",
+             "tanggal": "", "jabatan": "", "imo": "", "mmsi": "", "bendera": "", "jenis_kapal": "", "tersanksi": 1,
+             "catatan": "", "url_sumber": "", "pertama_terlihat": "", "terakhir_berubah": ""}
+    simpul = pd.DataFrame([{"id": " A ", **dasar}, {"id": "B", **dasar}, {"id": "  ", **dasar}])
+    simpul.to_csv(tmp_path / "simpul.csv.gz", index=False, compression="gzip")
+    df = muat_data.muat_simpul(str(tmp_path / "simpul.csv.gz"))
+    assert df.index.tolist() == ["A", "B"]
+    relasi = pd.DataFrame([{"id": "r", "sumber": "A ", "tujuan": " B", "tipe": "Ownership", "peran": "", "mulai": "",
+                            "selesai": "", "dataset": "uji", "persen": ""}])
+    relasi.to_csv(tmp_path / "relasi.csv.gz", index=False, compression="gzip")
+    r = muat_data.muat_relasi(str(tmp_path / "relasi.csv.gz"))
+    assert (r.loc[0, "sumber"], r.loc[0, "tujuan"]) == ("A", "B")
