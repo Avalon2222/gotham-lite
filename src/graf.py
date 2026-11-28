@@ -329,7 +329,8 @@ def tabel_kapal(G: nx.MultiDiGraph, simpul: pd.DataFrame) -> pd.DataFrame:
         jumlah.append(G.degree(i) if i in G else 0)
     kapal["pemilik"] = pemilik
     kapal["jumlah_relasi"] = jumlah
-    kapal["nama_bendera"] = kapal["bendera"].map(nama_negara)
+    # Kapal dengan dua bendera tercatat ("pa; lr") dulu tampil "PA; LR" karena dianggap satu kode.
+    kapal["nama_bendera"] = kapal["bendera"].map(lambda b: ", ".join(daftar_negara(b)))
     return kapal
 
 
