@@ -345,3 +345,11 @@ def test_cari_spasi_ganda_tetap_ketemu(simpul_kecil, H):
     simpul = simpul_kecil.copy()
     simpul.loc["C1", "nama"] = "Holding  Utama"
     assert graf.cari(simpul, "holding utama", deg).index.tolist() == ["C1"]
+
+
+def test_tabel_kapal_bendera_ganda_diterjemahkan_semua(G, simpul_kecil):
+    simpul = simpul_kecil.copy()
+    simpul.loc["V1", "bendera"] = "pa; lr"
+    tabel = graf.tabel_kapal(G, simpul)
+    assert tabel.loc["V1", "nama_bendera"] == "Panama, Liberia"
+    assert tabel.loc["V2", "nama_bendera"] == "Kepulauan Marshall"
