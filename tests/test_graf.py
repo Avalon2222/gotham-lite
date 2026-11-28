@@ -337,3 +337,11 @@ def test_cari_mmsi_berspasi_atau_desimal(simpul_kecil, H):
     simpul = simpul_kecil.copy()
     simpul.loc["V1", "mmsi"] = " 351000001.0"
     assert graf.cari(simpul, "MMSI 351000001", deg).index.tolist() == ["V1"]
+
+
+def test_cari_spasi_ganda_tetap_ketemu(simpul_kecil, H):
+    deg = graf.derajat(H)
+    assert graf.cari(simpul_kecil, "holding   utama", deg).index.tolist() == ["C1"]
+    simpul = simpul_kecil.copy()
+    simpul.loc["C1", "nama"] = "Holding  Utama"
+    assert graf.cari(simpul, "holding utama", deg).index.tolist() == ["C1"]
