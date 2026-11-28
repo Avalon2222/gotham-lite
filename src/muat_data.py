@@ -182,11 +182,17 @@ def muat_relasi(path: str | None = None) -> pd.DataFrame:
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
     # Persen dari sumber lain kadang ditulis "51%" atau "12,5"; dulu keduanya hilang jadi kosong.
     teks = df["persen"].str.strip().str.rstrip("%").str.strip().str.replace(",", ".", regex=False)
-    df["persen"] = pd.to_numeric(teks, errors="coerce")
+    persen = pd.to_numeric(teks, errors="coerce")
+    # Persen di luar 0-100 (mis. "-5" atau "1500", salah ketik di sumber) bukan porsi kepemilikan;
+    # dulu ikut tampil sebagai "1500%" di label relasi.
+    df["persen"] = persen.where((persen >= 0) & (persen <= 100))
     # Sama seperti id simpul: sumber/tujuan berspasi membuat relasinya diam-diam tidak masuk graf.
     for kolom in ("sumber", "tujuan"):
         df[kolom] = df[kolom].str.strip()
-    return df
+    # Relasi tanpa salah satu ujung tidak bisa digambar, dan relasi ke diri sendiri hanya menambah
+    # lingkaran di graf tanpa informasi.
+    df = df[(df["sumber"] != "") & (df["tujuan"] != "") & (df["sumber"] != df["tujuan"])]
+    return df.reset_index(drop=True)
 
 
 def muat_dataset(path: str | None = None) -> pd.DataFrame:

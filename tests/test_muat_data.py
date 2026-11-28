@@ -169,3 +169,19 @@ def test_id_simpul_dan_relasi_berspasi_dirapikan(tmp_path):
     relasi.to_csv(tmp_path / "relasi.csv.gz", index=False, compression="gzip")
     r = muat_data.muat_relasi(str(tmp_path / "relasi.csv.gz"))
     assert (r.loc[0, "sumber"], r.loc[0, "tujuan"]) == ("A", "B")
+
+
+def test_muat_relasi_persen_di_luar_rentang_dan_relasi_tanpa_ujung(tmp_path):
+    dasar = {"tipe": "Ownership", "peran": "", "mulai": "", "selesai": "", "dataset": "uji"}
+    relasi = pd.DataFrame([
+        {"id": "r1", "sumber": "a", "tujuan": "b", "persen": "1500", **dasar},
+        {"id": "r2", "sumber": "a", "tujuan": "c", "persen": "-5", **dasar},
+        {"id": "r3", "sumber": "a", "tujuan": "d", "persen": "100", **dasar},
+        {"id": "r4", "sumber": "a", "tujuan": "", "persen": "", **dasar},
+        {"id": "r5", "sumber": "b", "tujuan": "b ", "persen": "", **dasar},
+    ])
+    relasi.to_csv(tmp_path / "relasi.csv.gz", index=False, compression="gzip")
+    r = muat_data.muat_relasi(str(tmp_path / "relasi.csv.gz"))
+    assert r["id"].tolist() == ["r1", "r2", "r3"]
+    assert pd.isna(r["persen"].iloc[0]) and pd.isna(r["persen"].iloc[1])
+    assert r["persen"].iloc[2] == 100.0
