@@ -74,11 +74,12 @@ def cari(simpul: pd.DataFrame, teks: str, derajat_simpul: pd.Series | None = Non
     Urutan hasil: nama yang diawali teks pencarian dahulu, lalu yang tersanksi, lalu yang paling
     banyak relasinya. Mengembalikan paling banyak ``maks`` baris.
     """
-    q = (teks or "").strip().lower()
+    # Spasi ganda dari salin-tempel ("Holding  Utama") dulu membuat nama yang jelas ada tidak ketemu.
+    q = re.sub(r"\s+", " ", (teks or "").strip().lower())
     if len(q) < 2:
         return simpul.iloc[0:0]
-    nama = simpul["nama"].fillna("").astype(str).str.lower()
-    alias = simpul["alias"].fillna("").astype(str).str.lower()
+    nama = simpul["nama"].fillna("").astype(str).str.lower().str.replace(r"\s+", " ", regex=True)
+    alias = simpul["alias"].fillna("").astype(str).str.lower().str.replace(r"\s+", " ", regex=True)
     cocok = nama.str.contains(q, regex=False) | alias.str.contains(q, regex=False)
     # "IMO 9187629" atau "mmsi: 351000001" seperti di dokumen sanksi -> cukup angkanya.
     nomor = re.sub(r"^(imo|mmsi)[\s:#.-]*", "", q)
